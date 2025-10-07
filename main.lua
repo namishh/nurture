@@ -18,16 +18,16 @@ function love.load()
     local titleLabel = nurture.TextLabel:new(N, "ui library lmao", "title")
     titleLabel:setPosition(width / 2 - titleLabel.width / 2, height / 2 - 80)
     titleLabel:setColor(1, 1, 0.8, 1)
-    
+
     titleLabel:setClickCallback(function(widget, x, y, button)
         print("Title clicked at (" .. x .. ", " .. y .. ") with button " .. button)
         widget:setColor(math.random(), math.random(), math.random(), 1)
     end)
-    
+
     titleLabel:setMouseOverCallback(function(widget, x, y)
         widget:setColor(1, 0.5, 0.5, 1)
     end)
-    
+
     titleLabel:setMouseLeaveCallback(function(widget, x, y)
         widget:setColor(1, 1, 0.8, 1)
     end)
@@ -61,7 +61,7 @@ function love.load()
         widget.x = 0
         widget.y = 0
     end)
-    
+
     local followBox = nurture.Box:new(N, {
         padding = 20,
         forcedWidth = 200,
@@ -70,12 +70,12 @@ function love.load()
         valign = "top",
         halign = "right"
     })
-    
+
     local followText = nurture.TextLabel:new(N, "I follow you!", "body")
     followText:setColor(1, 1, 1, 1)
-    
+
     followBox:setChild(followText)
-    
+
     followBox:setUpdateCallback(function(widget, dt)
         local mx, my = love.mouse.getPosition()
         widget:setPosition(mx, my)
