@@ -64,7 +64,11 @@ function love.load()
     
     local followBox = nurture.Box:new(N, {
         padding = 20,
-        backgroundColor = { 0.1, 0.1, 0.2, 0.8 }
+        forcedWidth = 200,
+        forcedHeight = 200,
+        backgroundColor = { 0.1, 0.1, 0.2, 0.8 },
+        valign = "top",
+        halign = "right"
     })
     
     local followText = nurture.TextLabel:new(N, "I follow you!", "body")

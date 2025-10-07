@@ -26,14 +26,19 @@ function Box:new(N, options)
     end
 
     self.backgroundColor = options.backgroundColor or { 0.1, 0.1, 0.1, 0.8 }
-    self._widgetCannotHaveChildren = false -- box can have 1 child 
+    self._widgetCannotHaveChildren = false -- box can have 1 child
     self.child = options.child or nil
+
+    self.valign = options.valign or "center"
+    self.halign = options.halign or "center"
+    self.forcedWidth = options.forcedWidth
+    self.forcedHeight = options.forcedHeight
     N:addWidget(self)
 
     return self
 end
 
-function Box:setBackgroundColor(r,g,b,a)
+function Box:setBackgroundColor(r, g, b, a)
     self.backgroundColor = { r, g, b, a or 1 }
 end
 
@@ -62,17 +67,17 @@ function Box:setChild(child)
             end
         end
     end
-    
+
     self.child = child
     child.parent = self
-    
+
     for i, widget in ipairs(self.nurture._widgets) do
         if widget == child then
             table.remove(self.nurture._widgets, i)
             break
         end
     end
-    
+
     self:updateSize()
 end
 
@@ -86,7 +91,7 @@ end
 ---@diagnostic disable-next-line: duplicate-set-field
 function Box:update(dt)
     BaseWidget.update(self, dt)
-    
+
     if self.child and self.child.update then
         self.child:update(dt)
     end
@@ -94,15 +99,36 @@ end
 
 function Box:updateSize()
     if self.child then
-        local contentWidth = self.child.width 
+        local contentWidth = self.child.width
         local contentHeight = self.child.height
 
-        self.width = self.forcedWidth or (contentWidth + self.paddingLeft + self.paddingRight)
-        self.height = self.forcedHeight or (contentHeight + self.paddingTop + self.paddingBottom)
-        self.child.x = self.x + self.paddingLeft
-        self.child.y = self.y + self.paddingTop
+        local minboxWidth = contentWidth + self.paddingLeft + self.paddingRight
+        local minboxHeight = contentHeight + self.paddingTop + self.paddingBottom
+
+        self.width = math.max(self.forcedWidth or 0, minboxWidth)
+        self.height = math.max(self.forcedHeight or 0, minboxHeight)
+
+        local availableWidth = self.width - self.paddingLeft - self.paddingRight
+        local availableHeight = self.height - self.paddingTop - self.paddingBottom
+
+        local childX = self.x + self.paddingLeft
+        if self.halign == "center" then
+            childX = self.x + self.paddingLeft + (availableWidth - contentWidth) / 2
+        elseif self.halign == "right" then
+            childX = self.x + self.width - self.paddingRight - contentWidth
+        end
+
+        local childY = self.y + self.paddingTop
+        if self.valign == "center" then
+            childY = self.y + self.paddingTop + (availableHeight - contentHeight) / 2
+        elseif self.valign == "bottom" then
+            childY = self.y + self.height - self.paddingBottom - contentHeight
+        end
+
+        self.child.x = childX
+        self.child.y = childY
     else
-        local width = self.forcedHeight or 0 
+        local width = self.forcedWidth or 0
         self.width = width + self.paddingLeft + self.paddingRight
 
         local height = self.forcedHeight or 0
@@ -110,9 +136,38 @@ function Box:updateSize()
     end
 end
 
+function Box:setAlignment(halign, valign)
+    if halign then
+        if halign ~= "center" and halign ~= "left" and halign ~= "right" then
+            error("Box:setAlignment(): Invalid halign: " .. halign)
+        end
+        self.halign = halign
+    end
+    if valign then
+        if valign ~= "center" and valign ~= "top" and valign ~= "bottom" then
+            error("Box:setAlignment(): Invalid valign: " .. valign)
+        end
+        self.valign = valign
+    end
+end
+
+function Box:setHAlign(halign)
+    if halign ~= "center" and halign ~= "left" and halign ~= "right" then
+        error("Box:setHAlign(): Invalid halign: " .. halign)
+    end
+    self.halign = halign
+end
+
+function Box:setVAlign(valign)
+    if valign ~= "center" and valign ~= "top" and valign ~= "bottom" then
+        error("Box:setVAlign(): Invalid valign: " .. valign)
+    end
+    self.valign = valign
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function Box:draw()
-    if not self.visible then 
+    if not self.visible then
         return
     end
 
@@ -135,6 +190,22 @@ function Box:draw()
     if self.drawCallback then
         self.drawCallback(self)
     end
+end
+
+function Box:setForcedWidth(width)
+    self.forcedWidth = width
+    self:updateSize()
+end
+
+function Box:setForcedHeight(height)
+    self.forcedHeight = height
+    self:updateSize()
+end
+
+function Box:setForcedSize(width, height)
+    self.forcedWidth = width
+    self.forcedHeight = height
+    self:updateSize()
 end
 
 return Box
