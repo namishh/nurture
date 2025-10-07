@@ -109,8 +109,14 @@ function nurture:getWidgets()
     return self._widgets
 end
 
--- Update all widgets
 function nurture:update(dt)
+    local mx, my = love.mouse.getPosition()
+    for _, widget in ipairs(self._widgets) do
+        if widget.visible and widget.enabled and widget.updateMouseState then
+            widget:updateMouseState(mx, my)
+        end
+    end
+    
     for _, widget in ipairs(self._widgets) do
         if widget.visible and widget.update then
             widget:update(dt)
@@ -118,7 +124,6 @@ function nurture:update(dt)
     end
 end
 
--- Draw all widgets
 function nurture:draw()
     for _, widget in ipairs(self._widgets) do
         if widget.visible and widget.draw then
@@ -127,8 +132,18 @@ function nurture:draw()
     end
 end
 
+function nurture:mousepressed(x, y, button)
+    for _, widget in ipairs(self._widgets) do
+        if widget.visible and widget.enabled and widget:isPointInside(x, y) then
+            if widget.onClick then
+                widget:onClick(x, y, button)
+            end
+        end
+    end
+end
+
 nurture.BaseWidget = require("nurture.basewidget")
 nurture.TextLabel = require("nurture.widgets.text_label")
-
+nurture.Box = require("nurture.widgets.box")
 
 return nurture

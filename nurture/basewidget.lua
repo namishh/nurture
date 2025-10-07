@@ -17,6 +17,10 @@ function BaseWidget:new(type)
     self.children = {}
     self.updateCallback = nil
     self.drawCallback = nil
+    self.clickCallback = nil
+    self.mouseOverCallback = nil
+    self.mouseLeaveCallback = nil
+    self._isMouseOver = false
     return self
 end
 
@@ -30,7 +34,6 @@ function BaseWidget:isPointInside(px, py)
            py >= self.y and py <= self.y + self.height
 end
 
--- to be overridden
 function BaseWidget:update(dt)
     if self.updateCallback then
         self.updateCallback(self, dt)
@@ -85,6 +88,49 @@ end
 
 function BaseWidget:setDrawCallback(callback)
     self.drawCallback = callback
+end
+
+function BaseWidget:setClickCallback(callback)
+    self.clickCallback = callback
+end
+
+function BaseWidget:setMouseOverCallback(callback)
+    self.mouseOverCallback = callback
+end
+
+function BaseWidget:setMouseLeaveCallback(callback)
+    self.mouseLeaveCallback = callback
+end
+
+function BaseWidget:onClick(x, y, button)
+    if self.clickCallback then
+        self.clickCallback(self, x, y, button)
+    end
+end
+
+function BaseWidget:onMouseOver(x, y)
+    if self.mouseOverCallback then
+        self.mouseOverCallback(self, x, y)
+    end
+end
+
+function BaseWidget:onMouseLeave(x, y)
+    if self.mouseLeaveCallback then
+        self.mouseLeaveCallback(self, x, y)
+    end
+end
+
+function BaseWidget:updateMouseState(mx, my)
+    local wasOver = self._isMouseOver
+    local isOver = self:isPointInside(mx, my)
+    
+    if isOver and not wasOver then
+        self._isMouseOver = true
+        self:onMouseOver(mx, my)
+    elseif not isOver and wasOver then
+        self._isMouseOver = false
+        self:onMouseLeave(mx, my)
+    end
 end
 
 return BaseWidget

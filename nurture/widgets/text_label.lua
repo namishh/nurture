@@ -12,6 +12,7 @@ function TextLabel:new(N, text, fontName, color)
     self.color = color or { 1, 1, 1, 1 }
 
     self:updateSize()
+    self._widgetCannotHaveChildren = true -- text label cannot have children
 
     N:addWidget(self)
 
