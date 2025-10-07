@@ -8,7 +8,12 @@ function Box:new(N, options)
     local self = setmetatable(BaseWidget:new("Box"), Box)
     self.nurture = N
     options = options or {}
-    self.padding = 0
+
+    self.paddingLeft = 0
+    self.paddingRight = 0
+    self.paddingTop = 0
+    self.paddingBottom = 0
+
     if options.padding then
         if type(options.padding) == "number" then
             self.paddingLeft = options.padding
@@ -33,6 +38,10 @@ function Box:new(N, options)
     self.halign = options.halign or "center"
     self.forcedWidth = options.forcedWidth
     self.forcedHeight = options.forcedHeight
+
+    self.vertAlign = options.vertAlign
+
+    self:updateSize()
     N:addWidget(self)
 
     return self
@@ -105,8 +114,17 @@ function Box:updateSize()
         local minboxWidth = contentWidth + self.paddingLeft + self.paddingRight
         local minboxHeight = contentHeight + self.paddingTop + self.paddingBottom
 
-        self.width = math.max(self.forcedWidth or 0, minboxWidth)
-        self.height = math.max(self.forcedHeight or 0, minboxHeight)
+        if self.forcedWidth then
+            self.width = math.max(self.forcedWidth, minboxWidth)
+        else
+            self.width = minboxWidth
+        end
+
+        if self.forcedHeight then
+            self.height = math.max(self.forcedHeight, minboxHeight)
+        else
+            self.height = minboxHeight
+        end
 
         local availableWidth = self.width - self.paddingLeft - self.paddingRight
         local availableHeight = self.height - self.paddingTop - self.paddingBottom
@@ -128,11 +146,17 @@ function Box:updateSize()
         self.child.x = childX
         self.child.y = childY
     else
-        local width = self.forcedWidth or 0
-        self.width = width + self.paddingLeft + self.paddingRight
+        if self.forcedWidth then
+            self.width = self.forcedWidth
+        else
+            self.width = self.paddingLeft + self.paddingRight
+        end
 
-        local height = self.forcedHeight or 0
-        self.height = height + self.paddingTop + self.paddingBottom
+        if self.forcedHeight then
+            self.height = self.forcedHeight
+        else
+            self.height = self.paddingTop + self.paddingBottom
+        end
     end
 end
 

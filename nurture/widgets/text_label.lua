@@ -65,10 +65,14 @@ function TextLabel:draw()
     love.graphics.setFont(oldFont)
     love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
     
-    -- Pop graphics state if callback was called (assumes callback pushed)
     if hasCallback then
         love.graphics.pop()
     end
+end
+
+function TextLabel:setText(text)
+    self.text = text
+    self:updateSize()
 end
 
 return TextLabel
