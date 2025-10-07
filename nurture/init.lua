@@ -3,19 +3,22 @@ local nurture = {
     _DESCRIPTION = "Tasty and Easy UI Library",
 
     _fonts = {},
-    _defaultFont = nil
+    _defaultFont = nil,
+    _widgets = {}
 }
 
 function nurture:new()
     local self = setmetatable({}, { __index = nurture })
     self._fonts = {}
     self._defaultFont = nil
+    self._widgets = {}
     return self
 end
 
 function nurture:registerFont(path, name, size, default)
 
-    if not path or not love.filesystem.isFile(path) then
+    local info = love.filesystem.getInfo(path)
+    if not path or not info or info.type ~= "file" then
         error("nurture:registerFont(): Font file not found: " .. path)
     end
 
@@ -77,5 +80,55 @@ function nurture:removeFont(name)
         error("nurture:removeFont(): Font " .. name .. " not found")
     end
 end
+
+-- Widget Management
+function nurture:addWidget(widget)
+    if not widget then
+        error("nurture:addWidget(): Widget cannot be nil")
+    end
+    
+    table.insert(self._widgets, widget)
+    return widget
+end
+
+function nurture:removeWidget(widget)
+    for i, w in ipairs(self._widgets) do
+        if w == widget then
+            table.remove(self._widgets, i)
+            return true
+        end
+    end
+    return false
+end
+
+function nurture:clearWidgets()
+    self._widgets = {}
+end
+
+function nurture:getWidgets()
+    return self._widgets
+end
+
+-- Update all widgets
+function nurture:update(dt)
+    for _, widget in ipairs(self._widgets) do
+        if widget.visible and widget.update then
+            widget:update(dt)
+        end
+    end
+end
+
+-- Draw all widgets
+function nurture:draw()
+    for _, widget in ipairs(self._widgets) do
+        if widget.visible and widget.draw then
+            widget:draw()
+        end
+    end
+end
+
+nurture.BaseWidget = require("nurture.basewidget")
+nurture.TextLabel = require("nurture.widgets.text_label")
+
 
 return nurture
