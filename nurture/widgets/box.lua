@@ -40,6 +40,10 @@ function Box:new(N, options)
     self.forcedHeight = options.forcedHeight
 
     self.vertAlign = options.vertAlign
+    
+    if options.zIndex then
+        self.zIndex = options.zIndex
+    end
 
     self:updateSize()
     N:addWidget(self)

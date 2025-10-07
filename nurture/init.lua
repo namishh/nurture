@@ -125,7 +125,16 @@ function nurture:update(dt)
 end
 
 function nurture:draw()
+    local sortedWidgets = {}
     for _, widget in ipairs(self._widgets) do
+        table.insert(sortedWidgets, widget)
+    end
+    
+    table.sort(sortedWidgets, function(a, b)
+        return (a.zIndex or 1) < (b.zIndex or 1)
+    end)
+    
+    for _, widget in ipairs(sortedWidgets) do
         if widget.visible and widget.draw then
             widget:draw()
         end

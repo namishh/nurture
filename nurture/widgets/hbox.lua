@@ -20,6 +20,10 @@ function HBox:new(N, options)
 
     self.forcedWidth = options.forcedWidth
     self.forcedHeight = options.forcedHeight
+    
+    if options.zIndex then
+        self.zIndex = options.zIndex
+    end
 
     for _, child in ipairs(self.children) do
         child.parent = self

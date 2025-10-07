@@ -4,12 +4,17 @@ local TextLabel = setmetatable({}, { __index = BaseWidget })
 TextLabel.__index = TextLabel
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function TextLabel:new(N, text, fontName, color)
+function TextLabel:new(N, text, fontName, color, options)
     local self = setmetatable(BaseWidget:new("TextLabel"), TextLabel)
     self.nurture = N
     self.text = text or ""
     self.fontName = fontName or N._defaultFont
     self.color = color or { 1, 1, 1, 1 }
+    
+    options = options or {}
+    if options.zIndex then
+        self.zIndex = options.zIndex
+    end
 
     self:updateSize()
     self._widgetCannotHaveChildren = true -- text label cannot have children

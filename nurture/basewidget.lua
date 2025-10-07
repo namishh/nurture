@@ -12,6 +12,7 @@ function BaseWidget:new(type)
     self.visible = true
     self.enabled = true
     self.opacity = 1
+    self.zIndex = 1
     self.parent = nil
     self._widgetCannotHaveChildren = false
     self.children = {}
