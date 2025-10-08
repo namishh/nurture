@@ -4,18 +4,19 @@ local TextLabel = setmetatable({}, { __index = BaseWidget })
 TextLabel.__index = TextLabel
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function TextLabel:new(N, text, fontName, color, options)
+function TextLabel:new(N, text, fontName, options)
     local self = setmetatable(BaseWidget:new("TextLabel"), TextLabel)
     self.nurture = N
     self.text = text or ""
     self.fontName = fontName or N._defaultFont
-    self.color = color or { 1, 1, 1, 1 }
-    
     options = options or {}
+    self.color = options.color or { 1, 1, 1, 1 }
+    
     if options.zIndex then
         self.zIndex = options.zIndex
     end
 
+    self.shadow = options.shadow or {}
     self:updateSize()
     self._widgetCannotHaveChildren = true -- text label cannot have children
 
@@ -26,6 +27,15 @@ end
 
 function TextLabel:setColor(r, g, b, a)
     self.color = { r, g, b, a or 1 }
+end
+
+function TextLabel:setShadowOffsets(x, y)
+    self.shadow.x = x
+    self.shadow.y = y
+end
+
+function TextLabel:setShadowColor(r, g, b, a)
+    self.shadow.color = { r, g, b, a }
 end
 
 function TextLabel:updateSize()
@@ -62,8 +72,15 @@ function TextLabel:draw()
     local oldFont = love.graphics.getFont()
     local oldColor = { love.graphics.getColor() }
 
-    local font = self.nurture:font(self.fontName)
-    love.graphics.setFont(font)
+    self.nurture:setFont(self.fontName)
+
+    if self.shadow then
+        if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+            love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
+            love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
+        end
+    end
+
     love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
     love.graphics.print(self.text, self.x, self.y)
 

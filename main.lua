@@ -13,7 +13,13 @@ function love.load()
     N:registerFont('assets/BoldPixels.ttf', 'BodyFont', 20, false)
 
 
-    local followText = nurture.TextLabel:new(N, "I follow you!", "BodyFont")
+    local followText = nurture.TextLabel:new(N, "I follow you!", "BodyFont", {
+        shadow = {
+            x = 2,
+            y = 2,
+            color = { 0, 0, 0, 1 }
+        }
+    })
     followText:setColor(1, 1, 1, 1)
 
     local followBox = nurture.Box:new(N, {
