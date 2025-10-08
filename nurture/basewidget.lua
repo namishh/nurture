@@ -21,6 +21,9 @@ function BaseWidget:new(type)
     self.visible = true
     self.enabled = true
     self.opacity = 1
+    self.scaleX = 1.0
+    self.scaleY = 1.0
+    self.rotation = 0
     self.zIndex = 1
     self.classname = nil
     self.parentUUID = nil
@@ -39,6 +42,23 @@ end
 function BaseWidget:setPosition(x, y)
     self.x = x
     self.y = y
+end
+
+function BaseWidget:setScale(scaleX, scaleY)
+    self.scaleX = scaleX or 1.0
+    self.scaleY = scaleY or scaleX or 1.0
+end
+
+function BaseWidget:setScaleX(scaleX)
+    self.scaleX = scaleX or 1.0
+end
+
+function BaseWidget:setScaleY(scaleY)
+    self.scaleY = scaleY or 1.0
+end
+
+function BaseWidget:setRotation(rotation)
+    self.rotation = rotation or 0
 end
 
 function BaseWidget:isPointInside(px, py)

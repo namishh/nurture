@@ -459,6 +459,15 @@ function Button:draw()
         return
     end
 
+    -- Apply scale transformation
+    love.graphics.push()
+    local centerX = self.x + self.width / 2
+    local centerY = self.y + self.height / 2
+    love.graphics.translate(centerX, centerY)
+    love.graphics.rotate(self.rotation)
+    love.graphics.scale(self.scaleX, self.scaleY)
+    love.graphics.translate(-centerX, -centerY)
+
     if self.shader then
         love.graphics.setShader(self.shader)
     end
@@ -514,6 +523,8 @@ function Button:draw()
     if self.shader then
         love.graphics.setShader()
     end
+
+    love.graphics.pop()
 end
 
 return Button

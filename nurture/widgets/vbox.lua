@@ -144,6 +144,15 @@ function VBox:draw()
         return
     end
 
+    -- Apply scale transformation
+    love.graphics.push()
+    local centerX = self.x + self.width / 2
+    local centerY = self.y + self.height / 2
+    love.graphics.translate(centerX, centerY)
+    love.graphics.rotate(self.rotation)
+    love.graphics.scale(self.scaleX, self.scaleY)
+    love.graphics.translate(-centerX, -centerY)
+
     local children = self:getChildren()
     for _, child in ipairs(children) do
         if child and child.visible and child.draw then
@@ -154,6 +163,9 @@ function VBox:draw()
     if self.drawCallback then
         self.drawCallback(self)
     end
+
+    -- Pop scale transformation
+    love.graphics.pop()
 end
 
 function VBox:updateSize()
@@ -262,6 +274,36 @@ function VBox:updateSize()
     end
     if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
         self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
+    end
+end
+
+function VBox:onMousePressed(x, y, button)
+    for _, childUUID in ipairs(self.childrenUUIDs) do
+        local child = self.nurture:getFromUUID(childUUID)
+        if child and child.enabled and child.onMousePressed then
+            child:onMousePressed(x, y, button)
+        end
+    end
+end
+
+function VBox:onMouseReleased(x, y, button)
+    for _, childUUID in ipairs(self.childrenUUIDs) do
+        local child = self.nurture:getFromUUID(childUUID)
+        if child and child.enabled and child.onMouseReleased then
+            child:onMouseReleased(x, y, button)
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function VBox:updateMouseState(mx, my)
+    BaseWidget.updateMouseState(self, mx, my)
+    
+    for _, childUUID in ipairs(self.childrenUUIDs) do
+        local child = self.nurture:getFromUUID(childUUID)
+        if child and child.enabled and child.updateMouseState then
+            child:updateMouseState(mx, my)
+        end
     end
 end
 

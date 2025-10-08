@@ -114,12 +114,17 @@ function TextLabel:draw()
 
     self.nurture:setFont(self.fontName)
 
+    love.graphics.push()
+    local centerX = self.x + self.width / 2
+    local centerY = self.y + self.height / 2
+    love.graphics.translate(centerX, centerY)
+    love.graphics.rotate(self.rotation)
+    love.graphics.scale(self.scaleX, self.scaleY)
+    love.graphics.translate(-centerX, -centerY)
+
     if self.wrapping then
         local wrapWidth = self:getWrapWidth()
-        
-        -- Only draw wrapped if we have a valid wrap width
         if wrapWidth then
-            -- Draw shadow if enabled
             if self.shadow then
                 if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
                     love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
@@ -151,6 +156,8 @@ function TextLabel:draw()
         love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
         love.graphics.print(self.text, self.x, self.y)
     end
+
+    love.graphics.pop()
 
     love.graphics.setFont(oldFont)
     love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])

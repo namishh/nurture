@@ -315,6 +315,14 @@ function Box:draw()
         return
     end
 
+    love.graphics.push()
+    local centerX = self.x + self.width / 2
+    local centerY = self.y + self.height / 2
+    love.graphics.translate(centerX, centerY)
+    love.graphics.rotate(self.rotation)
+    love.graphics.scale(self.scaleX, self.scaleY)
+    love.graphics.translate(-centerX, -centerY)
+
     if self.shader then
         love.graphics.setShader(self.shader)
     end
@@ -367,6 +375,9 @@ function Box:draw()
     if self.shader then
         love.graphics.setShader()
     end
+
+    -- Pop scale transformation
+    love.graphics.pop()
 end
 
 function Box:setForcedWidth(width)
@@ -383,6 +394,30 @@ function Box:setForcedSize(width, height)
     self.forcedWidth = width
     self.forcedHeight = height
     self:updateSize()
+end
+
+function Box:onMousePressed(x, y, button)
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.enabled and child.onMousePressed then
+        child:onMousePressed(x, y, button)
+    end
+end
+
+function Box:onMouseReleased(x, y, button)
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.enabled and child.onMouseReleased then
+        child:onMouseReleased(x, y, button)
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Box:updateMouseState(mx, my)
+    BaseWidget.updateMouseState(self, mx, my)
+    
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.enabled and child.updateMouseState then
+        child:updateMouseState(mx, my)
+    end
 end
 
 return Box
