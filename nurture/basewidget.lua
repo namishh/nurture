@@ -47,12 +47,20 @@ function BaseWidget:isPointInside(px, py)
 end
 
 function BaseWidget:update(dt)
+    if not self.enabled then
+        return
+    end
+    
     if self.updateCallback then
         self.updateCallback(self, dt)
     end
 end
 
 function BaseWidget:draw()
+    if not self.visible or not self.enabled then
+        return
+    end
+    
     if self.drawCallback then
         self.drawCallback(self)
     end
@@ -154,24 +162,40 @@ function BaseWidget:setMouseLeaveCallback(callback)
 end
 
 function BaseWidget:onClick(x, y, button)
+    if not self.enabled then
+        return
+    end
+    
     if self.clickCallback then
         self.clickCallback(self, x, y, button)
     end
 end
 
 function BaseWidget:onMouseOver(x, y)
+    if not self.enabled then
+        return
+    end
+    
     if self.mouseOverCallback then
         self.mouseOverCallback(self, x, y)
     end
 end
 
 function BaseWidget:onMouseLeave(x, y)
+    if not self.enabled then
+        return
+    end
+    
     if self.mouseLeaveCallback then
         self.mouseLeaveCallback(self, x, y)
     end
 end
 
 function BaseWidget:updateMouseState(mx, my)
+    if not self.enabled then
+        return
+    end
+    
     local wasOver = self._isMouseOver
     local isOver = self:isPointInside(mx, my)
 

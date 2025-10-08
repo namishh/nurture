@@ -8,11 +8,13 @@
 - Querying for widgets
 - Better management of widgets
 - Classname support for all widgets with efficient lookup
+- VBox
 
 ## Todo:
-- VBox
-- Image / Video
 - Grid
+- HFracBox (fraction box)
+- VFracBox (fraction box)
+- Image / Video
 - Button
 - Tabs
 - Slider
@@ -22,10 +24,11 @@
   - Vertical
 - ProgressBar
 - Input
-- Overlay
+- Stack (widgets on top of each other)
 - Shapes
 - Animated Sprite
 
 ## Different Todo:
 - Extends the depths of what i have currently
 - Animation Support?
+- Enabled/Disabled Flag

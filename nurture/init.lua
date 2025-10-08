@@ -155,13 +155,13 @@ end
 function nurture:update(dt)
     local mx, my = love.mouse.getPosition()
     for _, widget in ipairs(self._widgets) do
-        if widget.visible and widget.enabled and widget.updateMouseState then
+        if widget.enabled and widget.updateMouseState then
             widget:updateMouseState(mx, my)
         end
     end
 
     for _, widget in ipairs(self._widgets) do
-        if widget.visible and widget.update then
+        if widget.enabled and widget.update then
             widget:update(dt)
         end
     end
@@ -178,7 +178,7 @@ function nurture:draw()
     end)
 
     for _, widget in ipairs(sortedWidgets) do
-        if widget.visible and widget.draw then
+        if widget.visible and widget.enabled and widget.draw then
             widget:draw()
         end
     end
@@ -186,7 +186,7 @@ end
 
 function nurture:mousepressed(x, y, button)
     for _, widget in ipairs(self._widgets) do
-        if widget.visible and widget.enabled and widget:isPointInside(x, y) then
+        if widget.enabled and widget:isPointInside(x, y) then
             if widget.onClick then
                 widget:onClick(x, y, button)
             end

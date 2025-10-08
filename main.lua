@@ -2,7 +2,7 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "hboxvboxcombinedtest"
+local CURRENT_EXAMPLE = "boxtest"
 
 function love.load()
     love.window.setTitle("nurture - " .. (CURRENT_EXAMPLE or "blank"))

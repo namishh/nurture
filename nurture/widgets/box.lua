@@ -298,7 +298,7 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function Box:draw()
-    if not self.visible then
+    if not self.visible or not self.enabled then
         return
     end
 

@@ -62,7 +62,7 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function TextLabel:draw()
-    if not self.visible or not self.text or self.text == "" then
+    if not self.visible or not self.enabled or not self.text or self.text == "" then
         return
     end
 
