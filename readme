@@ -9,6 +9,8 @@
 - Better management of widgets
 - Classname support for all widgets with efficient lookup
 - VBox
+- Testing system
+- Text wrapping
 
 ## Todo:
 - Grid

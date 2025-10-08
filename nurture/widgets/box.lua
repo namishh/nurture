@@ -194,12 +194,27 @@ end
 function Box:updateSize()
     local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
     if child then
+        -- If we have a forced width, set it first so child can use it for wrapping
+        if self.forcedWidth then
+            self.width = self.forcedWidth
+        end
+        
+        if self.forcedHeight then
+            self.height = self.forcedHeight
+        end
+        
+        -- Update child size first (important for text wrapping)
+        if child.updateSize then
+            child:updateSize()
+        end
+        
         local contentWidth = child.width
         local contentHeight = child.height
 
         local minboxWidth = contentWidth + self.paddingLeft + self.paddingRight
         local minboxHeight = contentHeight + self.paddingTop + self.paddingBottom
 
+        -- Now calculate final box size
         if self.forcedWidth then
             self.width = math.max(self.forcedWidth, minboxWidth)
         else
@@ -231,10 +246,6 @@ function Box:updateSize()
 
         child.x = childX
         child.y = childY
-
-        if child.updateSize then
-            child:updateSize()
-        end
     else
         if self.forcedWidth then
             self.width = self.forcedWidth

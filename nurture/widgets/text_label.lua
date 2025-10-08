@@ -22,6 +22,8 @@ function TextLabel:new(N, text, fontName, options)
 
     self.shadow = options.shadow or {}
     self.horizAlign = options.horizAlign
+    self.wrapping = options.wrapping or false
+    self.wrapAlign = options.wrapAlign or "left"  -- "left", "center", "right", "justify"
     self:updateSize()
     self._widgetCannotHaveChildren = true
 
@@ -48,10 +50,42 @@ function TextLabel:updateSize()
     if self.fontName and self.nurture then
         local font = self.nurture:font(self.fontName)
         if font then
-            self.width = font:getWidth(self.text)
-            self.height = font:getHeight()
+            if self.wrapping then
+                -- Get wrap width from parent (required for wrapping)
+                local wrapWidth = self:getWrapWidth()
+                if wrapWidth then
+                    self.width = wrapWidth
+                    
+                    -- Calculate wrapped text height
+                    local _, wrappedText = font:getWrap(self.text, wrapWidth)
+                    self.height = font:getHeight() * #wrappedText
+                else
+                    -- No parent yet, use normal sizing temporarily
+                    -- Don't disable wrapping - parent might be added later
+                    self.width = font:getWidth(self.text)
+                    self.height = font:getHeight()
+                end
+            else
+                self.width = font:getWidth(self.text)
+                self.height = font:getHeight()
+            end
         end
     end
+end
+
+function TextLabel:getWrapWidth()
+    -- Get parent width - wrapping only works with a parent
+    local parent = self:getParent()
+    if parent and parent.width and parent.width > 0 then
+        -- Account for parent padding if it's a Box
+        if parent.paddingLeft and parent.paddingRight then
+            return parent.width - parent.paddingLeft - parent.paddingRight
+        end
+        return parent.width
+    end
+    
+    -- No parent means no wrapping width available
+    return nil
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -80,15 +114,43 @@ function TextLabel:draw()
 
     self.nurture:setFont(self.fontName)
 
-    if self.shadow then
-        if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
-            love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
-            love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
-        end
-    end
+    if self.wrapping then
+        local wrapWidth = self:getWrapWidth()
+        
+        -- Only draw wrapped if we have a valid wrap width
+        if wrapWidth then
+            -- Draw shadow if enabled
+            if self.shadow then
+                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+                    love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
+                    love.graphics.printf(self.text, self.x + self.shadow.x, self.y + self.shadow.y, wrapWidth, self.wrapAlign)
+                end
+            end
 
-    love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
-    love.graphics.print(self.text, self.x, self.y)
+            love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
+            love.graphics.printf(self.text, self.x, self.y, wrapWidth, self.wrapAlign)
+        else
+            if self.shadow then
+                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+                    love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
+                    love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
+                end
+            end
+
+            love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
+            love.graphics.print(self.text, self.x, self.y)
+        end
+    else
+        if self.shadow then
+            if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+                love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3], self.shadow.color[4])
+                love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
+            end
+        end
+
+        love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
+        love.graphics.print(self.text, self.x, self.y)
+    end
 
     love.graphics.setFont(oldFont)
     love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
@@ -101,6 +163,15 @@ end
 function TextLabel:setText(text)
     self.text = text
     self:updateSize()
+end
+
+function TextLabel:setWrapping(enabled)
+    self.wrapping = enabled
+    self:updateSize()
+end
+
+function TextLabel:setWrapAlign(align)
+    self.wrapAlign = align
 end
 
 return TextLabel
