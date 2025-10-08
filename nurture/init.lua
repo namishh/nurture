@@ -187,8 +187,18 @@ end
 function nurture:mousepressed(x, y, button)
     for _, widget in ipairs(self._widgets) do
         if widget.enabled and widget:isPointInside(x, y) then
-            if widget.onClick then
-                widget:onClick(x, y, button)
+            if widget.onMousePressed then
+                widget:onMousePressed(x, y, button)
+            end
+        end
+    end
+end
+
+function nurture:mousereleased(x, y, button)
+    for _, widget in ipairs(self._widgets) do
+        if widget.enabled then
+            if widget.onMouseReleased then
+                widget:onMouseReleased(x, y, button)
             end
         end
     end
@@ -199,5 +209,6 @@ nurture.TextLabel = require("nurture.widgets.text_label")
 nurture.Box = require("nurture.widgets.box")
 nurture.HBox = require("nurture.widgets.hbox")
 nurture.VBox = require("nurture.widgets.vbox")
+nurture.Button = require("nurture.widgets.button")
 
 return nurture

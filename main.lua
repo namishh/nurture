@@ -2,7 +2,7 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "textwrapping"
+local CURRENT_EXAMPLE = "buttontest"
 
 function love.load()
     love.window.setTitle("nurture - " .. (CURRENT_EXAMPLE or "blank"))
@@ -42,6 +42,10 @@ end
 
 function love.mousepressed(x, y, button)
     N:mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+    N:mousereleased(x, y, button)
 end
 
 function love.keypressed(key)

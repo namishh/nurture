@@ -1,11 +1,11 @@
 local BaseWidget = require("nurture.basewidget")
 
-local Box = setmetatable({}, { __index = BaseWidget })
-Box.__index = Box
+local Button = setmetatable({}, { __index = BaseWidget })
+Button.__index = Button
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Box:new(N, options)
-    local self = setmetatable(BaseWidget:new("Box"), Box)
+function Button:new(N, options)
+    local self = setmetatable(BaseWidget:new("Button"), Button)
     self.nurture = N
     options = options or {}
 
@@ -13,10 +13,11 @@ function Box:new(N, options)
     self.y = options.y or 0
 
     self.paddingLeft = 0
-    self.shadow = options.shadow or {}
     self.paddingRight = 0
     self.paddingTop = 0
     self.paddingBottom = 0
+
+    self.shadow = options.shadow or {}
 
     if options.padding then
         if type(options.padding) == "number" then
@@ -30,11 +31,18 @@ function Box:new(N, options)
             self.paddingTop = options.padding.top or 0
             self.paddingBottom = options.padding.bottom or 0
         else
-            error("Box:new(): Padding must be a number or a table")
+            error("Button:new(): Padding must be a number or a table")
         end
     end
 
-    self.backgroundColor = options.backgroundColor or { 0.1, 0.1, 0.1, 0.8 }
+    self.colors = options.colors or {}
+    self.colors.primaryColor = self.colors.primaryColor or { 0.2, 0.5, 0.8, 1.0 }
+    self.colors.hoveredColor = self.colors.hoveredColor or { 0.3, 0.6, 0.9, 1.0 }
+    self.colors.pressedColor = self.colors.pressedColor or { 0.1, 0.4, 0.7, 1.0 }
+    self.colors.disabledColor = self.colors.disabledColor or { 0.5, 0.5, 0.5, 0.5 }
+
+    self.currentColor = self.colors.primaryColor
+
     self._widgetCannotHaveChildren = false
     self.childUUID = nil
 
@@ -75,13 +83,15 @@ function Box:new(N, options)
         self.shader = love.graphics.newShader(options.shader)
     end
 
-    if options.zIndex then
-        self.zIndex = options.zIndex
-    end
+    if options.zIndex then self.zIndex = options.zIndex end
+    if options.classname then self.classname = options.classname end
 
-    if options.classname then
-        self.classname = options.classname
-    end
+    self._isPressed = false
+    self.disabled = options.disabled or false
+
+    self._userClickCallback = options.onClick or options.clickCallback
+    self._userMouseOverCallback = options.onMouseOver or options.mouseOverCallback
+    self._userMouseLeaveCallback = options.onMouseLeave or options.mouseLeaveCallback
 
     N:addWidget(self)
     N._widgetsByUUID[self.uuid] = self
@@ -100,14 +110,51 @@ function Box:new(N, options)
 
     self:updateSize()
 
+
     return self
 end
 
-function Box:setBackgroundColor(r, g, b, a)
-    self.backgroundColor = { r, g, b, a or 1 }
+function Button:setColors(colors)
+    if colors.primaryColor then self.colors.primaryColor = colors.primaryColor end
+    if colors.hoveredColor then self.colors.hoveredColor = colors.hoveredColor end
+    if colors.pressedColor then self.colors.pressedColor = colors.pressedColor end
+    if colors.disabledColor then self.colors.disabledColor = colors.disabledColor end
+    self:_updateCurrentColor()
 end
 
-function Box:setBackgroundShader(shaderPath)
+function Button:setPrimaryColor(r, g, b, a)
+    self.colors.primaryColor = { r, g, b, a or 1 }
+    self:_updateCurrentColor()
+end
+
+function Button:setHoveredColor(r, g, b, a)
+    self.colors.hoveredColor = { r, g, b, a or 1 }
+    self:_updateCurrentColor()
+end
+
+function Button:setPressedColor(r, g, b, a)
+    self.colors.pressedColor = { r, g, b, a or 1 }
+    self:_updateCurrentColor()
+end
+
+function Button:setDisabledColor(r, g, b, a)
+    self.colors.disabledColor = { r, g, b, a or 1 }
+    self:_updateCurrentColor()
+end
+
+function Button:_updateCurrentColor()
+    if self.disabled then
+        self.currentColor = self.colors.disabledColor
+    elseif self._isPressed then
+        self.currentColor = self.colors.pressedColor
+    elseif self._isMouseOver then
+        self.currentColor = self.colors.hoveredColor
+    else
+        self.currentColor = self.colors.primaryColor
+    end
+end
+
+function Button:setBackgroundShader(shaderPath)
     if shaderPath then
         self.backgroundShader = love.graphics.newShader(shaderPath)
     else
@@ -115,13 +162,13 @@ function Box:setBackgroundShader(shaderPath)
     end
 end
 
-function Box:setBackgroundShaderValue(key, value)
+function Button:setBackgroundShaderValue(key, value)
     if self.backgroundShader then
         self.backgroundShader:send(key, value)
     end
 end
 
-function Box:setShader(shaderPath)
+function Button:setShader(shaderPath)
     if shaderPath then
         self.shader = love.graphics.newShader(shaderPath)
     else
@@ -129,13 +176,13 @@ function Box:setShader(shaderPath)
     end
 end
 
-function Box:setShaderValue(key, value)
+function Button:setShaderValue(key, value)
     if self.shader then
         self.shader:send(key, value)
     end
 end
 
-function Box:setPadding(padding)
+function Button:setPadding(padding)
     if type(padding) == "number" then
         self.paddingLeft = padding
         self.paddingRight = padding
@@ -147,42 +194,58 @@ function Box:setPadding(padding)
         self.paddingTop = padding.top or 0
         self.paddingBottom = padding.bottom or 0
     else
-        error("Box:setPadding(): Padding must be a number or a table")
+        error("Button:setPadding(): Padding must be a number or a table")
     end
 end
 
-function Box:setShadowOffset(x, y)
+function Button:setShadowOffset(x, y)
     self.shadow.x = x
     self.shadow.y = y
 end
 
-function Box:setShadowColor(r, g, b, a)
+function Button:setShadowColor(r, g, b, a)
     self.shadow.color = { r, g, b, a }
 end
 
-function Box:setChild(child)
+function Button:setChild(child)
     if self.childUUID then
         local oldChild = self.nurture:getFromUUID(self.childUUID)
         if oldChild then
             self:_removeChildRelationship(oldChild)
         end
     end
-
     self:_addChildRelationship(child)
     self.childUUID = child.uuid
 
     self:updateSize()
 end
 
+function Button:setOnClick(callback)
+    self._userClickCallback = callback
+end
+
+function Button:setOnMouseOver(callback)
+    self._userMouseOverCallback = callback
+end
+
+function Button:setOnMouseLeave(callback)
+    self._userMouseLeaveCallback = callback
+end
+
+function Button:setDisabled(disabled)
+    self.disabled = disabled
+    self:_updateCurrentColor()
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
-function Box:setPosition(x, y)
+function Button:setPosition(x, y)
     self.x = x
     self.y = y
     self:updateSize()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Box:update(dt)
+function Button:update(dt)
     BaseWidget.update(self, dt)
 
     local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
@@ -191,37 +254,37 @@ function Box:update(dt)
     end
 end
 
-function Box:updateSize()
+function Button:updateSize()
     local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
     if child then
         if self.forcedWidth then
             self.width = self.forcedWidth
         end
-        
+
         if self.forcedHeight then
             self.height = self.forcedHeight
         end
-        
+
         if child.updateSize and child.type == "TextLabel" then
             child:updateSize()
         end
-        
+
         local contentWidth = child.width
         local contentHeight = child.height
 
-        local minboxWidth = contentWidth + self.paddingLeft + self.paddingRight
-        local minboxHeight = contentHeight + self.paddingTop + self.paddingBottom
+        local minButtonWidth = contentWidth + self.paddingLeft + self.paddingRight
+        local minButtonHeight = contentHeight + self.paddingTop + self.paddingBottom
 
         if self.forcedWidth then
-            self.width = math.max(self.forcedWidth, minboxWidth)
+            self.width = math.max(self.forcedWidth, minButtonWidth)
         else
-            self.width = minboxWidth
+            self.width = minButtonWidth
         end
 
         if self.forcedHeight then
-            self.height = math.max(self.forcedHeight, minboxHeight)
+            self.height = math.max(self.forcedHeight, minButtonHeight)
         else
-            self.height = minboxHeight
+            self.height = minButtonHeight
         end
 
         local availableWidth = self.width - self.paddingLeft - self.paddingRight
@@ -243,7 +306,7 @@ function Box:updateSize()
 
         child.x = childX
         child.y = childY
-        
+
         -- Update child after position is set (important for VBox/HBox)
         if child.updateSize then
             child:updateSize()
@@ -263,36 +326,36 @@ function Box:updateSize()
     end
 end
 
-function Box:setAlignment(halign, valign)
+function Button:setAlignment(halign, valign)
     if halign then
         if halign ~= "center" and halign ~= "left" and halign ~= "right" then
-            error("Box:setAlignment(): Invalid halign: " .. halign)
+            error("Button:setAlignment(): Invalid halign: " .. halign)
         end
         self.halign = halign
     end
     if valign then
         if valign ~= "center" and valign ~= "top" and valign ~= "bottom" then
-            error("Box:setAlignment(): Invalid valign: " .. valign)
+            error("Button:setAlignment(): Invalid valign: " .. valign)
         end
         self.valign = valign
     end
 end
 
-function Box:setHAlign(halign)
+function Button:setHAlign(halign)
     if halign ~= "center" and halign ~= "left" and halign ~= "right" then
-        error("Box:setHAlign(): Invalid halign: " .. halign)
+        error("Button:setHAlign(): Invalid halign: " .. halign)
     end
     self.halign = halign
 end
 
-function Box:setVAlign(valign)
+function Button:setVAlign(valign)
     if valign ~= "center" and valign ~= "top" and valign ~= "bottom" then
-        error("Box:setVAlign(): Invalid valign: " .. valign)
+        error("Button:setVAlign(): Invalid valign: " .. valign)
     end
     self.valign = valign
 end
 
-function Box:setRounding(rounding)
+function Button:setRounding(rounding)
     if type(rounding) == "number" then
         self.rx = rounding
         self.ry = rounding
@@ -305,12 +368,93 @@ function Box:setRounding(rounding)
         self.ry = nil
         self.segments = nil
     else
-        error("Box:setRounding(): Rounding must be a number, table, or nil")
+        error("Button:setRounding(): Rounding must be a number, table, or nil")
+    end
+end
+
+function Button:setForcedWidth(width)
+    self.forcedWidth = width
+    self:updateSize()
+end
+
+function Button:setForcedHeight(height)
+    self.forcedHeight = height
+    self:updateSize()
+end
+
+function Button:setForcedSize(width, height)
+    self.forcedWidth = width
+    self.forcedHeight = height
+    self:updateSize()
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Button:onClick(x, y, button)
+    if self.disabled then
+        return
+    end
+
+    self._isPressed = false
+    self:_updateCurrentColor()
+
+    if self._userClickCallback then
+        self._userClickCallback(self, x, y, button)
     end
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Box:draw()
+function Button:onMouseOver(x, y)
+    if self.disabled then
+        return
+    end
+
+    self:_updateCurrentColor()
+
+    if self._userMouseOverCallback then
+        self._userMouseOverCallback(self, x, y)
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Button:onMouseLeave(x, y)
+    if self.disabled then
+        return
+    end
+
+    self._isPressed = false
+    self:_updateCurrentColor()
+
+    if self._userMouseLeaveCallback then
+        self._userMouseLeaveCallback(self, x, y)
+    end
+end
+
+function Button:onMousePressed(x, y, button)
+    if self.disabled then
+        return
+    end
+
+    if self:isPointInside(x, y) then
+        self._isPressed = true
+        self:_updateCurrentColor()
+    end
+end
+
+function Button:onMouseReleased(x, y, button)
+    if self.disabled then
+        return
+    end
+
+    if self._isPressed and self:isPointInside(x, y) then
+        self:onClick(x, y, button)
+    else
+        self._isPressed = false
+        self:_updateCurrentColor()
+    end
+end
+
+---@diagnostic disable-next-line
+function Button:draw()
     if not self.visible or not self.enabled then
         return
     end
@@ -324,22 +468,25 @@ function Box:draw()
             if self.shadow.color[4] > 0 then
                 love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
                     self.shadow.color[4])
-                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height, self.rx, self.ry, self.segments)
+                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height,
+                    self.rx, self.ry, self.segments)
             end
         end
     end
 
-    if self.backgroundColor[4] > 0 then
+    if self.currentColor[4] > 0 then
         local oldColor = { love.graphics.getColor() }
-        love.graphics.setColor(
-            self.backgroundColor[1],
-            self.backgroundColor[2],
-            self.backgroundColor[3],
-            self.backgroundColor[4]
-        )
 
         if self.backgroundShader then
+            love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setShader(self.backgroundShader)
+        else
+            love.graphics.setColor(
+                self.currentColor[1],
+                self.currentColor[2],
+                self.currentColor[3],
+                self.currentColor[4]
+            )
         end
 
         love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.rx, self.ry, self.segments)
@@ -369,20 +516,4 @@ function Box:draw()
     end
 end
 
-function Box:setForcedWidth(width)
-    self.forcedWidth = width
-    self:updateSize()
-end
-
-function Box:setForcedHeight(height)
-    self.forcedHeight = height
-    self:updateSize()
-end
-
-function Box:setForcedSize(width, height)
-    self.forcedWidth = width
-    self.forcedHeight = height
-    self:updateSize()
-end
-
-return Box
+return Button
