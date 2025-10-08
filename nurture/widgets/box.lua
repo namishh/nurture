@@ -43,6 +43,7 @@ function Box:new(N, options)
     self.forcedWidth = options.forcedWidth
     self.forcedHeight = options.forcedHeight
 
+    self.horizAlign = options.horizAlign
     self.vertAlign = options.vertAlign
 
     self.rx = nil

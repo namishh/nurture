@@ -2,116 +2,28 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
+local CURRENT_EXAMPLE = "hboxvboxcombinedtest"
 
 function love.load()
-    love.window.setTitle("nurture")
-    love.graphics.setBackgroundColor(0.2, 0.3, 0.5)
+    love.window.setTitle("nurture - " .. (CURRENT_EXAMPLE or "blank"))
+    love.graphics.setBackgroundColor(0.15, 0.15, 0.2)
     love.graphics.setColor(1, 1, 1)
 
-    N:registerFont('assets/BoldPixels.ttf', 'title', 48, true)
-    N:registerFont('assets/BoldPixels.ttf', 'subtitle', 32, false)
-    N:registerFont('assets/BoldPixels.ttf', 'BodyFont', 20, false)
+    N:registerFont('assets/BoldPixels.ttf', 'title', 24, true)
+    N:registerFont('assets/BoldPixels.ttf', 'subtitle', 18, false)
+    N:registerFont('assets/BoldPixels.ttf', 'BodyFont', 14, false)
 
-
-    local followText = nurture.TextLabel:new(N, "I follow you!", "BodyFont", {
-        shadow = {
-            x = 2,
-            y = 2,
-            color = { 0, 0, 0, 1 }
-        },
-        classname = "follower"
-    })
-    followText:setColor(1, 1, 1, 1)
-
-    local followBox = nurture.Box:new(N, {
-        padding = 20,
-        forcedWidth = 200,
-        zIndex = 2,
-        forcedHeight = 200,
-        backgroundColor = { 0.1, 0.1, 0.2, 0.8 },
-        valign = "bottom",
-        halign = "right",
-        classname = "follower-container",
-        rounding = 15
-    })
-
-    followBox:setChild(followText)
-
-    followBox:setUpdateCallback(function(widget, dt)
-        local mx, my = love.mouse.getPosition()
-        widget:setPosition(mx, my)
-        followText:setText("I follow you! " .. mx .. ", " .. my)
-    end)
-
-    local hbox = nurture.HBox:new(N, {
-        x = 0,
-        y = 0,
-        spacing = 20,
-        forcedWidth = 800,
-        justify = "space-evenly",
-        classname = "main-hbox",
-        children = {
-            nurture.Box:new(N, {
-                forcedWidth = 100,
-                forcedHeight = 100,
-                padding = 2,
-                backgroundColor = { 0.1, 0.1, 0.2, 0.4 },
-                classname = "demo-box",
-                rounding = 10
-            }),
-            nurture.Box:new(N, {
-                padding = 2,
-                forcedWidth = 200,
-                forcedHeight = 50,
-                vertAlign = "center",
-                backgroundColor = { 0.5, 0.7, 0.2, 0.4 },
-                classname = "demo-box"
-            })
-        }
-    })
-
-
-    hbox:setAddChildCallback(function(widget, child)
-        print("Added child to hbox")
-    end)
-
-
-    local box = nurture.Box:new(N, {
-        forcedWidth = 60,
-        forcedHeight = 60,
-        vertAlign = "bottom",
-        padding = 2,
-        backgroundColor = { 0.8, 0.1, 0.6, 0.4 },
-        classname = "demo-box",
-        children = {
-            nurture.TextLabel:new(N, "Hello", "BodyFont", {
-                color = { 1, 0.5, 1, 1 },
-                classname = "greeting-text"
-            }),
-        }
-    })
-    hbox:addChild(box)
-    
-    local shaderBox = nurture.Box:new(N, {
-        x = 100,
-        y = 150,
-        forcedWidth = 150,
-        forcedHeight = 150,
-        padding = 10,
-        backgroundColor = { 1, 1, 1, 1 },
-        backgroundShader = "assets/grad.glsl",
-        classname = "shader-container",
-        rounding = { rx = 20, ry = 20 },
-        children = {
-            nurture.TextLabel:new(N, "Spinning!", "BodyFont", {
-                color = { 1, 1, 1, 1 },
-                classname = "shader-text"
-            }),
-        }
-    })
-    shaderBox:setUpdateCallback(function(widget, dt)
-        widget:setBackgroundShaderValue("time", love.timer.getTime())
-    end)
+    if CURRENT_EXAMPLE then
+        local exampleModule = require("examples." .. CURRENT_EXAMPLE)
+        if exampleModule and exampleModule.load then
+            print("Loading example: " .. CURRENT_EXAMPLE)
+            exampleModule.load(nurture, N)
+        else
+            error("Example '" .. CURRENT_EXAMPLE .. "' does not have a load() function")
+        end
+    else
+        print("No example loaded. Starting with blank canvas.")
+    end
 end
 
 function love.update(dt)
@@ -120,6 +32,12 @@ end
 
 function love.draw()
     N:draw()
+    
+    love.graphics.setColor(1, 1, 1, 0.5)
+    local currentExample = CURRENT_EXAMPLE or "blank"
+    love.graphics.print("Example: " .. currentExample, 10, love.graphics.getHeight() - 40)
+    love.graphics.print("Press ESC to quit", 10, love.graphics.getHeight() - 20)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function love.mousepressed(x, y, button)

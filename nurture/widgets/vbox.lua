@@ -1,19 +1,20 @@
 local BaseWidget = require("nurture.basewidget")
 
-local HBox = setmetatable({}, { __index = BaseWidget })
-HBox.__index = HBox
+local VBox = setmetatable({}, { __index = BaseWidget })
+VBox.__index = VBox
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function HBox:new(N, options)
-    local self = setmetatable(BaseWidget:new("HBox"), HBox)
+function VBox:new(N, options)
+    local self = setmetatable(BaseWidget:new("VBox"), VBox)
     self.nurture = N
-    self.x = options.x or 0
-    self.y = options.y or 0
     self.options = options or {}
+
+    self.x = options.x or 0
+    self.y = options.y or 0 
 
     self._widgetCannotHaveChildren = false
     self.spacing = options.spacing or 0
-    self.justify = options.justify or "left"
+    self.justify = options.justify or "top"
 
     self.forcedWidth = options.forcedWidth
     self.forcedHeight = options.forcedHeight
@@ -43,40 +44,40 @@ function HBox:new(N, options)
     return self
 end
 
-function HBox:setSpacing(spacing)
+function VBox:setSpacing(spacing)
     self.spacing = spacing
-    self:updateSize()
 end
 
-function HBox:setJustify(justify)
+function VBox:setJustify(justify)
     local validJustify = {
-        left = true,
-        right = true,
+        top = true,
         center = true,
-        ["space-evenly"] = true,
-        ["space-between"] = true
+        bottom = true,
+        ['space-between'] = true,
+        ['space-around'] = true,
     }
+
     if not validJustify[justify] then
-        error("HBox:setJustify(): Invalid justify: " ..
-            justify .. ". Must be one of: left, right, center, space-evenly, space-between")
+        error("VBox:setJustify(): Invalid justify value: " .. justify)
     end
+
     self.justify = justify
     self:updateSize()
 end
 
-function HBox:setAddChildCallback(callback)
+function VBox:setAddChildCallback(callback)
     self.addChildCallback = callback
 end
 
-function HBox:setRemoveChildCallback(callback)
+function VBox:setRemoveChildCallback(callback)
     self.removeChildCallback = callback
 end
 
-function HBox:setSizeChangeCallback(callback)
+function VBox:setSizeChangeCallback(callback)
     self.sizeChangeCallback = callback
 end
 
-function HBox:addChild(child)
+function VBox:addChild(child)
     self:_addChildRelationship(child)
     self:updateSize()
 
@@ -85,7 +86,7 @@ function HBox:addChild(child)
     end
 end
 
-function HBox:removeChild(child)
+function VBox:removeChild(child)
     self:_removeChildRelationship(child)
     self:updateSize()
 
@@ -94,7 +95,7 @@ function HBox:removeChild(child)
     end
 end
 
-function HBox:clear()
+function VBox:clear()
     local children = self:getChildren()
     for _, child in ipairs(children) do
         self:_removeChildRelationship(child)
@@ -103,14 +104,14 @@ function HBox:clear()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function HBox:setPosition(x, y)
+function VBox:setPosition(x, y)
     self.x = x
     self.y = y
     self:updateSize()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function HBox:update(dt)
+function VBox:update(dt)
     BaseWidget.update(self, dt)
 
     local children = self:getChildren()
@@ -121,24 +122,24 @@ function HBox:update(dt)
     end
 end
 
-function HBox:setForcedWidth(width)
+function VBox:setForcedWidth(width)
     self.forcedWidth = width
     self:updateSize()
 end
 
-function HBox:setForcedHeight(height)
+function VBox:setForcedHeight(height)
     self.forcedHeight = height
     self:updateSize()
 end
 
-function HBox:setForcedSize(width, height)
+function VBox:setForcedSize(width, height)
     self.forcedWidth = width
     self.forcedHeight = height
     self:updateSize()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function HBox:draw()
+function VBox:draw()
     if not self.visible then
         return
     end
@@ -155,11 +156,14 @@ function HBox:draw()
     end
 end
 
-function HBox:updateSize()
+function VBox:updateSize()
     local oldWidth = self.width
     local oldHeight = self.height
-    
-    local children = self:getChildren()
+
+    local totalHeight = 0
+    local maxWidth = 0
+
+    local children = self:getChildren() 
     local numChildren = #children
 
     if numChildren == 0 then
@@ -169,81 +173,81 @@ function HBox:updateSize()
         if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
             self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
         end
-        return
+        return 
     end
 
-    local sumChildrenWidth = 0
-    local tallestChildHeight = 0
+    local sumChildrenHeight = 0
+    local widestChildWidth = 0
 
     for _, child in ipairs(children) do
-        sumChildrenWidth = sumChildrenWidth + child.width
-        if child.height > tallestChildHeight then
-            tallestChildHeight = child.height
+        sumChildrenHeight = sumChildrenHeight + child.height
+        if child.width > widestChildWidth then
+            widestChildWidth = child.width
         end
     end
 
     local totalSpacing = self.spacing * (numChildren - 1)
-    local contentWidth = sumChildrenWidth + totalSpacing
+    local contentHeight = sumChildrenHeight + totalSpacing
 
-    self.width = math.max(self.forcedWidth or 0, contentWidth)
-    self.height = math.max(self.forcedHeight or 0, tallestChildHeight)
+    self.width = math.max(self.forcedWidth or 0, widestChildWidth)
+    self.height = math.max(self.forcedHeight or 0, contentHeight)
 
     local availableWidth = self.width
     local availableHeight = self.height
 
-    local targetHeight = self.forcedHeight or tallestChildHeight
+    local targetWidth = self.forcedWidth or widestChildWidth
 
-    local childX = self.x
-    local startX = childX
+
+    local childY = self.y
+    local startY = childY
     local gap = self.spacing
 
-    if self.justify == "right" then
-        local extraSpace = availableWidth - contentWidth
-        startX = self.x + extraSpace
+    if self.justify == "bottom" then
+        local extraSpace = availableHeight - contentHeight
+        startY = self.y + extraSpace
     elseif self.justify == "center" then
-        local extraSpace = availableWidth - contentWidth
-        startX = self.x + extraSpace / 2
+        local extraSpace = availableHeight - contentHeight
+        startY = self.y + extraSpace / 2
     elseif self.justify == "space-evenly" then
-        gap = (availableWidth - sumChildrenWidth) / (numChildren + 1)
-        startX = self.x + gap
+        gap = (availableHeight - sumChildrenHeight) / (numChildren + 1)
+        startY = self.y + gap
     elseif self.justify == "space-between" then
         if numChildren > 1 then
-            gap = (availableWidth - sumChildrenWidth) / (numChildren - 1)
+            gap = (availableHeight - sumChildrenHeight) / (numChildren - 1)
         end
-        startX = self.x
+        startY = self.y
     end
 
-    childX = startX
-
+    childY = startY
     for _, child in ipairs(children) do
-        local vertAlign = child.vertAlign or "stretch"
+        local horizAlign = child.horizAlign or "stretch"
 
-        if not child._originalForcedHeight and vertAlign ~= "stretch" then
-            child._originalForcedHeight = child.forcedHeight
+        if not child._originalForcedWidth and horizAlign ~= "stretch" then
+            child._originalForcedWidth = child.forcedWidth
         end
 
-        local childY = self.y
-        local childHeight = child.height
+        local childX = self.x
+        local childWidth = child.width
 
-        if vertAlign == "stretch" then
-            if child.setForcedHeight then
-                child:setForcedHeight(targetHeight)
+        if horizAlign == "stretch" then
+            if child.setForcedWidth then
+                child:setForcedWidth(targetWidth)
             end
-            childHeight = targetHeight
-            childY = self.y
+            childWidth = targetWidth
+            childX = self.x
         else
-            if child._originalForcedHeight ~= nil and child.setForcedHeight then
-                if child.forcedHeight ~= child._originalForcedHeight then
-                    child:setForcedHeight(child._originalForcedHeight)
+            if child._originalForcedWidth ~= nil and child.setForcedWidth then
+                if child.forcedWidth ~= child._originalForcedWidth then
+                    child:setForcedWidth(child._originalForcedWidth)
                 end
             end
             
-            if vertAlign == "top" then
-                childY = self.y
-            elseif vertAlign == "center" then
-                childY = self.y + (availableHeight - childHeight) / 2
-            elseif vertAlign == "bottom" then
-                childY = self.y + self.height - childHeight
+            if horizAlign == "left" then
+                childX = self.x
+            elseif horizAlign == "center" then
+                childX = self.x + (availableWidth - childWidth) / 2
+            elseif horizAlign == "right" then
+                childX = self.x + self.width - childWidth
             end
         end
 
@@ -254,12 +258,11 @@ function HBox:updateSize()
             child:updateSize()
         end
 
-        childX = childX + child.width + gap
+        childY = childY + child.height + gap
     end
-
     if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
         self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
     end
 end
 
-return HBox
+return VBox

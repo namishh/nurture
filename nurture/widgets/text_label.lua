@@ -21,6 +21,7 @@ function TextLabel:new(N, text, fontName, options)
     end
 
     self.shadow = options.shadow or {}
+    self.horizAlign = options.horizAlign
     self:updateSize()
     self._widgetCannotHaveChildren = true
 
