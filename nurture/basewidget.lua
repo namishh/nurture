@@ -22,6 +22,7 @@ function BaseWidget:new(type)
     self.enabled = true
     self.opacity = 1
     self.zIndex = 1
+    self.classname = nil
     self.parentUUID = nil
     self.childrenUUIDs = {}
     self._widgetCannotHaveChildren = false
@@ -42,7 +43,7 @@ end
 
 function BaseWidget:isPointInside(px, py)
     return px >= self.x and px <= self.x + self.width and
-           py >= self.y and py <= self.y + self.height
+        py >= self.y and py <= self.y + self.height
 end
 
 function BaseWidget:update(dt)
@@ -105,6 +106,37 @@ function BaseWidget:getZIndex()
     return self.zIndex
 end
 
+function BaseWidget:setClassName(classname)
+    if not self.nurture then
+        error("BaseWidget:setClassName() Widget must have nurture reference")
+    end
+
+    if self.classname and self.nurture._widgetsByClassName[self.classname] then
+        for i, widget in ipairs(self.nurture._widgetsByClassName[self.classname]) do
+            if widget.uuid == self.uuid then
+                table.remove(self.nurture._widgetsByClassName[self.classname], i)
+                break
+            end
+        end
+        if #self.nurture._widgetsByClassName[self.classname] == 0 then
+            self.nurture._widgetsByClassName[self.classname] = nil
+        end
+    end
+
+    self.classname = classname
+
+    if classname then
+        if not self.nurture._widgetsByClassName[classname] then
+            self.nurture._widgetsByClassName[classname] = {}
+        end
+        table.insert(self.nurture._widgetsByClassName[classname], self)
+    end
+end
+
+function BaseWidget:getClassName()
+    return self.classname
+end
+
 function BaseWidget:setDrawCallback(callback)
     self.drawCallback = callback
 end
@@ -142,7 +174,7 @@ end
 function BaseWidget:updateMouseState(mx, my)
     local wasOver = self._isMouseOver
     local isOver = self:isPointInside(mx, my)
-    
+
     if isOver and not wasOver then
         self._isMouseOver = true
         self:onMouseOver(mx, my)
@@ -172,27 +204,79 @@ function BaseWidget:getChildren()
     return children
 end
 
+function BaseWidget:get_all_by_classname(classname)
+    local result = {}
+    local queue = {}
+
+    if self.nurture then
+        for _, childUUID in ipairs(self.childrenUUIDs) do
+            local child = self.nurture:getFromUUID(childUUID)
+            if child then
+                table.insert(queue, child)
+            end
+        end
+    end
+
+    while #queue > 0 do
+        local current = table.remove(queue, 1)
+
+        if current.classname == classname then
+            table.insert(result, current)
+        end
+
+        if current.nurture then
+            for _, childUUID in ipairs(current.childrenUUIDs) do
+                local child = current.nurture:getFromUUID(childUUID)
+                if child then
+                    table.insert(queue, child)
+                end
+            end
+        end
+    end
+
+    return result
+end
+
 function BaseWidget:_addChildRelationship(child)
     if not self.nurture then
         error("BaseWidget:_addChildRelationship() Parent widget must have nurture reference")
     end
-    
+
     child.nurture = self.nurture
     child.parentUUID = self.uuid
     table.insert(self.childrenUUIDs, child.uuid)
-    
+
     if child.zIndex == 1 then
         child.zIndex = self.zIndex
     end
-    
+
     for i, widget in ipairs(self.nurture._widgets) do
         if widget.uuid == child.uuid then
             table.remove(self.nurture._widgets, i)
             break
         end
     end
-    
+
     self.nurture._widgetsByUUID[child.uuid] = child
+
+    if child.classname then
+        local alreadyRegistered = false
+        if self.nurture._widgetsByClassName[child.classname] then
+            for _, widget in ipairs(self.nurture._widgetsByClassName[child.classname]) do
+                if widget.uuid == child.uuid then
+                    alreadyRegistered = true
+                    break
+                end
+            end
+        end
+
+        if not alreadyRegistered then
+            if not self.nurture._widgetsByClassName[child.classname] then
+                self.nurture._widgetsByClassName[child.classname] = {}
+            end
+            table.insert(self.nurture._widgetsByClassName[child.classname], child)
+        end
+    end
 end
 
 function BaseWidget:_removeChildRelationship(child)

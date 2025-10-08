@@ -26,6 +26,10 @@ function HBox:new(N, options)
         self.zIndex = options.zIndex
     end
 
+    if options.classname then
+        self.classname = options.classname
+    end
+
     N:addWidget(self)
     N._widgetsByUUID[self.uuid] = self
 

@@ -5,7 +5,8 @@ local nurture = {
     _fonts = {},
     _defaultFont = nil,
     _widgets = {},
-    _widgetsByUUID = {}
+    _widgetsByUUID = {},
+    _widgetsByClassName = {}
 }
 
 function nurture:new()
@@ -14,11 +15,11 @@ function nurture:new()
     self._defaultFont = nil
     self._widgets = {}
     self._widgetsByUUID = {}
+    self._widgetsByClassName = {}
     return self
 end
 
 function nurture:registerFont(path, name, size, default)
-
     local info = love.filesystem.getInfo(path)
     if not path or not info or info.type ~= "file" then
         error("nurture:registerFont(): Font file not found: " .. path)
@@ -32,7 +33,7 @@ function nurture:registerFont(path, name, size, default)
         error("nurture:registerFont(): Name must be a string")
     end
 
-    if self._fonts[name] then 
+    if self._fonts[name] then
         print("nurture:registerFont(): Font " .. name .. " will be overwrriten")
     end
 
@@ -48,7 +49,7 @@ function nurture:registerFont(path, name, size, default)
         if self._defaultFont ~= nil then
             error("nurture:registerFont(): Default font already set")
         end
-        self._defaultFont = name 
+        self._defaultFont = name
     end
 
 
@@ -72,25 +73,32 @@ end
 function nurture:removeFont(name)
     if nurture._fonts[name] then
         nurture._fonts[name] = nil
-        
+
         if nurture._default_font == name then
             nurture._default_font = next(nurture._fonts)
         end
-        
+
         return true
     else
         error("nurture:removeFont(): Font " .. name .. " not found")
     end
 end
 
--- Widget Management
 function nurture:addWidget(widget)
     if not widget then
         error("nurture:addWidget(): Widget cannot be nil")
     end
-    
+
     table.insert(self._widgets, widget)
     self._widgetsByUUID[widget.uuid] = widget
+
+    if widget.classname then
+        if not self._widgetsByClassName[widget.classname] then
+            self._widgetsByClassName[widget.classname] = {}
+        end
+        table.insert(self._widgetsByClassName[widget.classname], widget)
+    end
+
     return widget
 end
 
@@ -99,6 +107,19 @@ function nurture:removeWidget(widget)
         if w == widget then
             table.remove(self._widgets, i)
             self._widgetsByUUID[widget.uuid] = nil
+
+            if widget.classname and self._widgetsByClassName[widget.classname] then
+                for j, classWidget in ipairs(self._widgetsByClassName[widget.classname]) do
+                    if classWidget.uuid == widget.uuid then
+                        table.remove(self._widgetsByClassName[widget.classname], j)
+                        break
+                    end
+                end
+                if #self._widgetsByClassName[widget.classname] == 0 then
+                    self._widgetsByClassName[widget.classname] = nil
+                end
+            end
+
             return true
         end
     end
@@ -108,6 +129,7 @@ end
 function nurture:clearWidgets()
     self._widgets = {}
     self._widgetsByUUID = {}
+    self._widgetsByClassName = {}
 end
 
 function nurture:getWidgets()
@@ -118,6 +140,18 @@ function nurture:getFromUUID(uuid)
     return self._widgetsByUUID[uuid]
 end
 
+function nurture:get_all_by_classname(classname)
+    if self._widgetsByClassName[classname] then
+        local result = {}
+        for _, widget in ipairs(self._widgetsByClassName[classname]) do
+            table.insert(result, widget)
+        end
+        return result
+    else
+        return {}
+    end
+end
+
 function nurture:update(dt)
     local mx, my = love.mouse.getPosition()
     for _, widget in ipairs(self._widgets) do
@@ -125,7 +159,7 @@ function nurture:update(dt)
             widget:updateMouseState(mx, my)
         end
     end
-    
+
     for _, widget in ipairs(self._widgets) do
         if widget.visible and widget.update then
             widget:update(dt)
@@ -138,11 +172,11 @@ function nurture:draw()
     for _, widget in ipairs(self._widgets) do
         table.insert(sortedWidgets, widget)
     end
-    
+
     table.sort(sortedWidgets, function(a, b)
         return (a.zIndex or 1) < (b.zIndex or 1)
     end)
-    
+
     for _, widget in ipairs(sortedWidgets) do
         if widget.visible and widget.draw then
             widget:draw()

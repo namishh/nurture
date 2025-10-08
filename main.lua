@@ -18,7 +18,8 @@ function love.load()
             x = 2,
             y = 2,
             color = { 0, 0, 0, 1 }
-        }
+        },
+        classname = "follower"
     })
     followText:setColor(1, 1, 1, 1)
 
@@ -29,7 +30,8 @@ function love.load()
         forcedHeight = 200,
         backgroundColor = { 0.1, 0.1, 0.2, 0.8 },
         valign = "bottom",
-        halign = "right"
+        halign = "right",
+        classname = "follower-container"
     })
 
     followBox:setChild(followText)
@@ -46,12 +48,14 @@ function love.load()
         spacing = 20,
         forcedWidth = 800,
         justify = "space-evenly",
+        classname = "main-hbox",
         children = {
             nurture.Box:new(N, {
                 forcedWidth = 100,
                 forcedHeight = 100,
                 padding = 2,
                 backgroundColor = { 0.1, 0.1, 0.2, 0.4 },
+                classname = "demo-box"
             }),
             nurture.Box:new(N, {
                 padding = 2,
@@ -59,6 +63,7 @@ function love.load()
                 forcedHeight = 50,
                 vertAlign = "center",
                 backgroundColor = { 0.5, 0.7, 0.2, 0.4 },
+                classname = "demo-box"
             })
         }
     })
@@ -75,9 +80,11 @@ function love.load()
         vertAlign = "bottom",
         padding = 2,
         backgroundColor = { 0.8, 0.1, 0.6, 0.4 },
+        classname = "demo-box",
         children = {
             nurture.TextLabel:new(N, "Hello", "BodyFont", {
                 color = { 1, 0.5, 1, 1 },
+                classname = "greeting-text"
             }),
         }
     })
@@ -91,13 +98,14 @@ function love.load()
         padding = 10,
         backgroundColor = { 1, 1, 1, 1 },
         backgroundShader = "assets/grad.glsl",
+        classname = "shader-container",
         children = {
             nurture.TextLabel:new(N, "Spinning!", "BodyFont", {
                 color = { 1, 1, 1, 1 },
+                classname = "shader-text"
             }),
         }
     })
-    
     shaderBox:setUpdateCallback(function(widget, dt)
         widget:setBackgroundShaderValue("time", love.timer.getTime())
     end)

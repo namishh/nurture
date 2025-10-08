@@ -16,6 +16,10 @@ function TextLabel:new(N, text, fontName, options)
         self.zIndex = options.zIndex
     end
 
+    if options.classname then
+        self.classname = options.classname
+    end
+
     self.shadow = options.shadow or {}
     self:updateSize()
     self._widgetCannotHaveChildren = true
