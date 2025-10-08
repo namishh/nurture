@@ -42,8 +42,32 @@ function Box:new(N, options)
 
     self.vertAlign = options.vertAlign
 
+    self.backgroundShader = nil
+    if options.backgroundShader then
+        self.backgroundShader = love.graphics.newShader(options.backgroundShader)
+    end
+    
+    self.shader = nil
+    if options.shader then
+        self.shader = love.graphics.newShader(options.shader)
+    end
+
     if options.zIndex then
         self.zIndex = options.zIndex
+    end
+
+    if options.children and #options.children > 0 then
+        self.child = options.children[1]
+    end
+
+    if self.child then
+        self.child.parent = self
+        for i, widget in ipairs(N._widgets) do
+            if widget == self.child then
+                table.remove(N._widgets, i)
+                break
+            end
+        end
     end
 
     self:updateSize()
@@ -54,6 +78,34 @@ end
 
 function Box:setBackgroundColor(r, g, b, a)
     self.backgroundColor = { r, g, b, a or 1 }
+end
+
+function Box:setBackgroundShader(shaderPath)
+    if shaderPath then
+        self.backgroundShader = love.graphics.newShader(shaderPath)
+    else
+        self.backgroundShader = nil
+    end
+end
+
+function Box:setBackgroundShaderValue(key, value)
+    if self.backgroundShader then
+        self.backgroundShader:send(key, value)
+    end
+end
+
+function Box:setShader(shaderPath)
+    if shaderPath then
+        self.shader = love.graphics.newShader(shaderPath)
+    else
+        self.shader = nil
+    end
+end
+
+function Box:setShaderValue(key, value)
+    if self.shader then
+        self.shader:send(key, value)
+    end
 end
 
 function Box:setPadding(padding)
@@ -159,6 +211,10 @@ function Box:updateSize()
 
         self.child.x = childX
         self.child.y = childY
+
+        if self.child.updateSize then
+            self.child:updateSize()
+        end
     else
         if self.forcedWidth then
             self.width = self.forcedWidth
@@ -208,6 +264,11 @@ function Box:draw()
     if not self.visible then
         return
     end
+    
+    if self.shader then
+        love.graphics.setShader(self.shader)
+    end
+    
     if self.shadow then
         if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
             if self.shadow.color[4] > 0 then
@@ -226,7 +287,21 @@ function Box:draw()
             self.backgroundColor[3],
             self.backgroundColor[4]
         )
+        
+        if self.backgroundShader then
+            love.graphics.setShader(self.backgroundShader)
+        end
+        
         love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+        
+        if self.backgroundShader then
+            if self.shader then
+                love.graphics.setShader(self.shader)
+            else
+                love.graphics.setShader()
+            end
+        end
+        
         love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
     end
 
@@ -236,6 +311,10 @@ function Box:draw()
 
     if self.drawCallback then
         self.drawCallback(self)
+    end
+    
+    if self.shader then
+        love.graphics.setShader()
     end
 end
 

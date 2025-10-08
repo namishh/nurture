@@ -20,7 +20,11 @@ function HBox:new(N, options)
 
     self.forcedWidth = options.forcedWidth
     self.forcedHeight = options.forcedHeight
-    
+
+    self.addChildCallback = nil
+    self.removeChildCallback = nil
+    self.sizeChangeCallback = nil
+
     if options.zIndex then
         self.zIndex = options.zIndex
     end
@@ -56,10 +60,22 @@ function HBox:setJustify(justify)
     }
     if not validJustify[justify] then
         error("HBox:setJustify(): Invalid justify: " ..
-        justify .. ". Must be one of: left, right, center, space-evenly, space-between")
+            justify .. ". Must be one of: left, right, center, space-evenly, space-between")
     end
     self.justify = justify
     self:updateSize()
+end
+
+function HBox:setAddChildCallback(callback)
+    self.addChildCallback = callback
+end
+
+function HBox:setRemoveChildCallback(callback)
+    self.removeChildCallback = callback
+end
+
+function HBox:setSizeChangeCallback(callback)
+    self.sizeChangeCallback = callback
 end
 
 function HBox:addChild(child)
@@ -74,6 +90,10 @@ function HBox:addChild(child)
     end
 
     self:updateSize()
+
+    if self.addChildCallback then
+        self.addChildCallback(self, child)
+    end
 end
 
 function HBox:removeChild(child)
@@ -84,6 +104,10 @@ function HBox:removeChild(child)
         end
     end
     self:updateSize()
+
+    if self.removeChildCallback then
+        self.removeChildCallback(self, child)
+    end
 end
 
 function HBox:clear()
@@ -143,9 +167,16 @@ function HBox:draw()
 end
 
 function HBox:updateSize()
+    local oldWidth = self.width
+    local oldHeight = self.height
+
     if #self.children == 0 then
         self.width = self.forcedWidth or 0
         self.height = self.forcedHeight or 0
+
+        if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
+            self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
+        end
         return
     end
 
@@ -215,7 +246,15 @@ function HBox:updateSize()
         child.x = childX
         child.y = childY
 
+        if child.updateSize then
+            child:updateSize()
+        end
+
         childX = childX + child.width + gap
+    end
+
+    if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
+        self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
     end
 end
 

@@ -28,7 +28,7 @@ function love.load()
         zIndex = 2,
         forcedHeight = 200,
         backgroundColor = { 0.1, 0.1, 0.2, 0.8 },
-        valign = "top",
+        valign = "bottom",
         halign = "right"
     })
 
@@ -62,6 +62,64 @@ function love.load()
             })
         }
     })
+
+
+    hbox:setAddChildCallback(function(widget, child)
+        print("Added child to hbox")
+    end)
+
+
+    local box = nurture.Box:new(N, {
+        forcedWidth = 60,
+        forcedHeight = 60,
+        vertAlign = "bottom",
+        padding = 2,
+        backgroundColor = { 0.8, 0.1, 0.6, 0.4 },
+        children = {
+            nurture.TextLabel:new(N, "Hello", "BodyFont", {
+                color = { 1, 0.5, 1, 1 },
+            }),
+        }
+    })
+    hbox:addChild(box)
+    
+    local shaderBox = nurture.Box:new(N, {
+        x = 100,
+        y = 150,
+        forcedWidth = 150,
+        forcedHeight = 150,
+        padding = 10,
+        backgroundColor = { 1, 1, 1, 1 },
+        backgroundShader = "assets/grad.glsl",
+        children = {
+            nurture.TextLabel:new(N, "Spinning!", "BodyFont", {
+                color = { 1, 1, 1, 1 },
+            }),
+        }
+    })
+    
+    shaderBox:setUpdateCallback(function(widget, dt)
+        widget:setBackgroundShaderValue("time", love.timer.getTime())
+    end)
+    
+    local fullShaderBox = nurture.Box:new(N, {
+        x = 300,
+        y = 150,
+        forcedWidth = 150,
+        forcedHeight = 150,
+        padding = 10,
+        backgroundColor = { 1, 1, 1, 1 },
+        shader = "assets/grad.glsl",
+        children = {
+            nurture.TextLabel:new(N, "Full Shader!", "BodyFont", {
+                color = { 1, 1, 1, 1 },
+            }),
+        }
+    })
+    
+    fullShaderBox:setUpdateCallback(function(widget, dt)
+        widget:setShaderValue("time", love.timer.getTime())
+    end)
 end
 
 function love.update(dt)

@@ -2,6 +2,9 @@
 - Box
 - TextLabel
 - HBox
+- Shaders for backgrounds
+- Custom handlers for when item is removed/added from hbox, vbox.
+- Shadows
 
 ## Todo:
 - VBox
@@ -18,13 +21,13 @@
 - ProgressBar
 - Input
 - Image
+- Overlay
+- Shapes
+- Animated Sprite
 - Toggle
 
 ## Different Todo:
 - Better management of widgets
 - Querying for wdigets
 - Extends the depths of what i have currently
-- Custom handlers for when item is removed/added from hbox, vbox.
-- Custom handler for when layout is changed  
-- Shadows
 - Animation Support?
