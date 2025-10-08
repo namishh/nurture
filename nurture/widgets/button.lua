@@ -86,6 +86,10 @@ function Button:new(N, options)
     if options.zIndex then self.zIndex = options.zIndex end
     if options.classname then self.classname = options.classname end
 
+    self.rotation = options.rotation or 0
+    self.scaleX = options.scaleX or 1
+    self.scaleY = options.scaleY or 1
+
     self._isPressed = false
     self.disabled = options.disabled or false
 

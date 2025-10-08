@@ -24,6 +24,11 @@ function TextLabel:new(N, text, fontName, options)
     self.horizAlign = options.horizAlign
     self.wrapping = options.wrapping or false
     self.wrapAlign = options.wrapAlign or "left"  -- "left", "center", "right", "justify"
+    
+    self.rotation = options.rotation or 0
+    self.scaleX = options.scaleX or 1
+    self.scaleY = options.scaleY or 1
+    
     self:updateSize()
     self._widgetCannotHaveChildren = true
 
@@ -109,11 +114,6 @@ function TextLabel:draw()
         self.drawCallback(self)
     end
 
-    local oldFont = love.graphics.getFont()
-    local oldColor = { love.graphics.getColor() }
-
-    self.nurture:setFont(self.fontName)
-
     love.graphics.push()
     local centerX = self.x + self.width / 2
     local centerY = self.y + self.height / 2
@@ -121,6 +121,11 @@ function TextLabel:draw()
     love.graphics.rotate(self.rotation)
     love.graphics.scale(self.scaleX, self.scaleY)
     love.graphics.translate(-centerX, -centerY)
+
+    local oldFont = love.graphics.getFont()
+    local oldColor = { love.graphics.getColor() }
+
+    self.nurture:setFont(self.fontName)
 
     if self.wrapping then
         local wrapWidth = self:getWrapWidth()
@@ -157,10 +162,10 @@ function TextLabel:draw()
         love.graphics.print(self.text, self.x, self.y)
     end
 
-    love.graphics.pop()
-
     love.graphics.setFont(oldFont)
     love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
+    
+    love.graphics.pop()
     
     if hasCallback then
         love.graphics.pop()

@@ -30,6 +30,10 @@ function HBox:new(N, options)
         self.classname = options.classname
     end
 
+    self.rotation = options.rotation or 0
+    self.scaleX = options.scaleX or 1
+    self.scaleY = options.scaleY or 1
+
     N:addWidget(self)
     N._widgetsByUUID[self.uuid] = self
 
