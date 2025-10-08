@@ -45,6 +45,25 @@ function Box:new(N, options)
 
     self.vertAlign = options.vertAlign
 
+    self.rx = nil
+    self.ry = nil
+    self.segments = nil
+
+    if options.rounding then
+        if type(options.rounding) == "number" then
+            self.rx = options.rounding
+            self.ry = options.rounding
+        elseif type(options.rounding) == "table" then
+            self.rx = options.rounding.rx or options.rounding[1]
+            self.ry = options.rounding.ry or options.rounding[2] or self.rx
+            self.segments = options.rounding.segments
+        end
+    end
+
+    if options.rx then self.rx = options.rx end
+    if options.ry then self.ry = options.ry end
+    if options.segments then self.segments = options.segments end
+
     self.backgroundShader = nil
     if options.backgroundShader then
         self.backgroundShader = love.graphics.newShader(options.backgroundShader)
@@ -259,6 +278,23 @@ function Box:setVAlign(valign)
     self.valign = valign
 end
 
+function Box:setRounding(rounding)
+    if type(rounding) == "number" then
+        self.rx = rounding
+        self.ry = rounding
+    elseif type(rounding) == "table" then
+        self.rx = rounding.rx or rounding[1]
+        self.ry = rounding.ry or rounding[2] or self.rx
+        self.segments = rounding.segments
+    elseif rounding == nil then
+        self.rx = nil
+        self.ry = nil
+        self.segments = nil
+    else
+        error("Box:setRounding(): Rounding must be a number, table, or nil")
+    end
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function Box:draw()
     if not self.visible then
@@ -274,7 +310,7 @@ function Box:draw()
             if self.shadow.color[4] > 0 then
                 love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
                     self.shadow.color[4])
-                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height)
+                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height, self.rx, self.ry, self.segments)
             end
         end
     end
@@ -292,7 +328,7 @@ function Box:draw()
             love.graphics.setShader(self.backgroundShader)
         end
 
-        love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+        love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.rx, self.ry, self.segments)
 
         if self.backgroundShader then
             if self.shader then

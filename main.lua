@@ -31,7 +31,8 @@ function love.load()
         backgroundColor = { 0.1, 0.1, 0.2, 0.8 },
         valign = "bottom",
         halign = "right",
-        classname = "follower-container"
+        classname = "follower-container",
+        rounding = 15
     })
 
     followBox:setChild(followText)
@@ -55,7 +56,8 @@ function love.load()
                 forcedHeight = 100,
                 padding = 2,
                 backgroundColor = { 0.1, 0.1, 0.2, 0.4 },
-                classname = "demo-box"
+                classname = "demo-box",
+                rounding = 10
             }),
             nurture.Box:new(N, {
                 padding = 2,
@@ -99,6 +101,7 @@ function love.load()
         backgroundColor = { 1, 1, 1, 1 },
         backgroundShader = "assets/grad.glsl",
         classname = "shader-container",
+        rounding = { rx = 20, ry = 20 },
         children = {
             nurture.TextLabel:new(N, "Spinning!", "BodyFont", {
                 color = { 1, 1, 1, 1 },

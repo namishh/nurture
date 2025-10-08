@@ -1,20 +1,20 @@
 ##Implemented:
-- Box
+- Box (with rounding support)
 - TextLabel
 - HBox
 - Shaders for backgrounds
 - Custom handlers for when item is removed/added from hbox, vbox.
 - Shadows
-- Querying for wdigets
+- Querying for widgets
 - Better management of widgets
+- Classname support for all widgets with efficient lookup
 
 ## Todo:
 - VBox
+- Image / Video
 - Grid
 - Button
 - Tabs
-- Checkbox
-- Radiobox
 - Slider
   - Horizontal
     - Split
@@ -22,11 +22,9 @@
   - Vertical
 - ProgressBar
 - Input
-- Image
 - Overlay
 - Shapes
 - Animated Sprite
-- Toggle
 
 ## Different Todo:
 - Extends the depths of what i have currently
