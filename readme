@@ -5,6 +5,7 @@
 - Shaders for backgrounds
 - Custom handlers for when item is removed/added from hbox, vbox.
 - Shadows
+- Better management of widgets
 
 ## Todo:
 - VBox
@@ -27,7 +28,6 @@
 - Toggle
 
 ## Different Todo:
-- Better management of widgets
 - Querying for wdigets
 - Extends the depths of what i have currently
 - Animation Support?

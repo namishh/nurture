@@ -9,6 +9,9 @@ function Box:new(N, options)
     self.nurture = N
     options = options or {}
 
+    self.x = options.x or 0
+    self.y = options.y or 0
+
     self.paddingLeft = 0
     self.shadow = options.shadow or {}
     self.paddingRight = 0
@@ -32,8 +35,8 @@ function Box:new(N, options)
     end
 
     self.backgroundColor = options.backgroundColor or { 0.1, 0.1, 0.1, 0.8 }
-    self._widgetCannotHaveChildren = false -- box can have 1 child
-    self.child = options.child or nil
+    self._widgetCannotHaveChildren = false
+    self.childUUID = nil
 
     self.valign = options.valign or "center"
     self.halign = options.halign or "center"
@@ -46,7 +49,7 @@ function Box:new(N, options)
     if options.backgroundShader then
         self.backgroundShader = love.graphics.newShader(options.backgroundShader)
     end
-    
+
     self.shader = nil
     if options.shader then
         self.shader = love.graphics.newShader(options.shader)
@@ -56,22 +59,22 @@ function Box:new(N, options)
         self.zIndex = options.zIndex
     end
 
-    if options.children and #options.children > 0 then
-        self.child = options.children[1]
+    N:addWidget(self)
+    N._widgetsByUUID[self.uuid] = self
+
+    local childToSet = nil
+    if options.child then
+        childToSet = options.child
+    elseif options.children and #options.children > 0 then
+        childToSet = options.children[1]
     end
 
-    if self.child then
-        self.child.parent = self
-        for i, widget in ipairs(N._widgets) do
-            if widget == self.child then
-                table.remove(N._widgets, i)
-                break
-            end
-        end
+    if childToSet then
+        self:_addChildRelationship(childToSet)
+        self.childUUID = childToSet.uuid
     end
 
     self:updateSize()
-    N:addWidget(self)
 
     return self
 end
@@ -134,24 +137,15 @@ function Box:setShadowColor(r, g, b, a)
 end
 
 function Box:setChild(child)
-    if self.child then
-        for i, widget in ipairs(self.nurture._widgets) do
-            if widget == self.child then
-                table.remove(self.nurture._widgets, i)
-                break
-            end
+    if self.childUUID then
+        local oldChild = self.nurture:getFromUUID(self.childUUID)
+        if oldChild then
+            self:_removeChildRelationship(oldChild)
         end
     end
 
-    self.child = child
-    child.parent = self
-
-    for i, widget in ipairs(self.nurture._widgets) do
-        if widget == child then
-            table.remove(self.nurture._widgets, i)
-            break
-        end
-    end
+    self:_addChildRelationship(child)
+    self.childUUID = child.uuid
 
     self:updateSize()
 end
@@ -167,15 +161,17 @@ end
 function Box:update(dt)
     BaseWidget.update(self, dt)
 
-    if self.child and self.child.update then
-        self.child:update(dt)
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.update then
+        child:update(dt)
     end
 end
 
 function Box:updateSize()
-    if self.child then
-        local contentWidth = self.child.width
-        local contentHeight = self.child.height
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child then
+        local contentWidth = child.width
+        local contentHeight = child.height
 
         local minboxWidth = contentWidth + self.paddingLeft + self.paddingRight
         local minboxHeight = contentHeight + self.paddingTop + self.paddingBottom
@@ -209,11 +205,11 @@ function Box:updateSize()
             childY = self.y + self.height - self.paddingBottom - contentHeight
         end
 
-        self.child.x = childX
-        self.child.y = childY
+        child.x = childX
+        child.y = childY
 
-        if self.child.updateSize then
-            self.child:updateSize()
+        if child.updateSize then
+            child:updateSize()
         end
     else
         if self.forcedWidth then
@@ -264,11 +260,11 @@ function Box:draw()
     if not self.visible then
         return
     end
-    
+
     if self.shader then
         love.graphics.setShader(self.shader)
     end
-    
+
     if self.shadow then
         if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
             if self.shadow.color[4] > 0 then
@@ -287,13 +283,13 @@ function Box:draw()
             self.backgroundColor[3],
             self.backgroundColor[4]
         )
-        
+
         if self.backgroundShader then
             love.graphics.setShader(self.backgroundShader)
         end
-        
+
         love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-        
+
         if self.backgroundShader then
             if self.shader then
                 love.graphics.setShader(self.shader)
@@ -301,18 +297,19 @@ function Box:draw()
                 love.graphics.setShader()
             end
         end
-        
+
         love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
     end
 
-    if self.child and self.child.visible and self.child.draw then
-        self.child:draw()
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.visible and child.draw then
+        child:draw()
     end
 
     if self.drawCallback then
         self.drawCallback(self)
     end
-    
+
     if self.shader then
         love.graphics.setShader()
     end

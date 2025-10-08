@@ -2,8 +2,17 @@ local BaseWidget = {}
 
 BaseWidget.__index = BaseWidget
 
+local function generateUUID()
+    local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function(c)
+        local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
 function BaseWidget:new(type)
     local self = setmetatable({}, { __index = BaseWidget })
+    self.uuid = generateUUID()
     self.x = 0
     self.type = type
     self.y = 0
@@ -13,9 +22,10 @@ function BaseWidget:new(type)
     self.enabled = true
     self.opacity = 1
     self.zIndex = 1
-    self.parent = nil
+    self.parentUUID = nil
+    self.childrenUUIDs = {}
     self._widgetCannotHaveChildren = false
-    self.children = {}
+    self.nurture = nil
     self.updateCallback = nil
     self.drawCallback = nil
     self.clickCallback = nil
@@ -87,6 +97,14 @@ function BaseWidget:setUpdateCallback(callback)
     self.updateCallback = callback
 end
 
+function BaseWidget:setZIndex(zIndex)
+    self.zIndex = zIndex
+end
+
+function BaseWidget:getZIndex()
+    return self.zIndex
+end
+
 function BaseWidget:setDrawCallback(callback)
     self.drawCallback = callback
 end
@@ -131,6 +149,59 @@ function BaseWidget:updateMouseState(mx, my)
     elseif not isOver and wasOver then
         self._isMouseOver = false
         self:onMouseLeave(mx, my)
+    end
+end
+
+function BaseWidget:getParent()
+    if self.parentUUID and self.nurture then
+        return self.nurture:getFromUUID(self.parentUUID)
+    end
+    return nil
+end
+
+function BaseWidget:getChildren()
+    local children = {}
+    if self.nurture then
+        for _, childUUID in ipairs(self.childrenUUIDs) do
+            local child = self.nurture:getFromUUID(childUUID)
+            if child then
+                table.insert(children, child)
+            end
+        end
+    end
+    return children
+end
+
+function BaseWidget:_addChildRelationship(child)
+    if not self.nurture then
+        error("BaseWidget:_addChildRelationship() Parent widget must have nurture reference")
+    end
+    
+    child.nurture = self.nurture
+    child.parentUUID = self.uuid
+    table.insert(self.childrenUUIDs, child.uuid)
+    
+    if child.zIndex == 1 then
+        child.zIndex = self.zIndex
+    end
+    
+    for i, widget in ipairs(self.nurture._widgets) do
+        if widget.uuid == child.uuid then
+            table.remove(self.nurture._widgets, i)
+            break
+        end
+    end
+    
+    self.nurture._widgetsByUUID[child.uuid] = child
+end
+
+function BaseWidget:_removeChildRelationship(child)
+    for i, uuid in ipairs(self.childrenUUIDs) do
+        if uuid == child.uuid then
+            table.remove(self.childrenUUIDs, i)
+            child.parentUUID = nil
+            break
+        end
     end
 end
 

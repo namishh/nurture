@@ -11,10 +11,7 @@ function HBox:new(N, options)
     self.y = options.y or 0
     self.options = options or {}
 
-    N:addWidget(self)
-
     self._widgetCannotHaveChildren = false
-    self.children = options.children or {}
     self.spacing = options.spacing or 0
     self.justify = options.justify or "left"
 
@@ -29,17 +26,14 @@ function HBox:new(N, options)
         self.zIndex = options.zIndex
     end
 
-    for _, child in ipairs(self.children) do
-        child.parent = self
-        for i, widget in ipairs(N._widgets) do
-            if widget == child then
-                table.remove(N._widgets, i)
-                break
-            end
-        end
+    N:addWidget(self)
+    N._widgetsByUUID[self.uuid] = self
+
+    local children = options.children or {}
+    for _, child in ipairs(children) do
+        self:_addChildRelationship(child)
     end
 
-    N:addWidget(self)
     self:updateSize()
 
     return self
@@ -79,16 +73,7 @@ function HBox:setSizeChangeCallback(callback)
 end
 
 function HBox:addChild(child)
-    table.insert(self.children, child)
-    child.parent = self
-
-    for i, widget in ipairs(self.nurture._widgets) do
-        if widget == child then
-            table.remove(self.nurture._widgets, i)
-            break
-        end
-    end
-
+    self:_addChildRelationship(child)
     self:updateSize()
 
     if self.addChildCallback then
@@ -97,12 +82,7 @@ function HBox:addChild(child)
 end
 
 function HBox:removeChild(child)
-    for i, v in ipairs(self.children) do
-        if v == child then
-            table.remove(self.children, i)
-            break
-        end
-    end
+    self:_removeChildRelationship(child)
     self:updateSize()
 
     if self.removeChildCallback then
@@ -111,7 +91,10 @@ function HBox:removeChild(child)
 end
 
 function HBox:clear()
-    self.children = {}
+    local children = self:getChildren()
+    for _, child in ipairs(children) do
+        self:_removeChildRelationship(child)
+    end
     self:updateSize()
 end
 
@@ -126,7 +109,8 @@ end
 function HBox:update(dt)
     BaseWidget.update(self, dt)
 
-    for _, child in ipairs(self.children) do
+    local children = self:getChildren()
+    for _, child in ipairs(children) do
         if child and child.update then
             child:update(dt)
         end
@@ -155,7 +139,8 @@ function HBox:draw()
         return
     end
 
-    for _, child in ipairs(self.children) do
+    local children = self:getChildren()
+    for _, child in ipairs(children) do
         if child and child.visible and child.draw then
             child:draw()
         end
@@ -169,8 +154,11 @@ end
 function HBox:updateSize()
     local oldWidth = self.width
     local oldHeight = self.height
+    
+    local children = self:getChildren()
+    local numChildren = #children
 
-    if #self.children == 0 then
+    if numChildren == 0 then
         self.width = self.forcedWidth or 0
         self.height = self.forcedHeight or 0
 
@@ -183,14 +171,14 @@ function HBox:updateSize()
     local sumChildrenWidth = 0
     local tallestChildHeight = 0
 
-    for _, child in ipairs(self.children) do
+    for _, child in ipairs(children) do
         sumChildrenWidth = sumChildrenWidth + child.width
         if child.height > tallestChildHeight then
             tallestChildHeight = child.height
         end
     end
 
-    local totalSpacing = self.spacing * (#self.children - 1)
+    local totalSpacing = self.spacing * (numChildren - 1)
     local contentWidth = sumChildrenWidth + totalSpacing
 
     self.width = math.max(self.forcedWidth or 0, contentWidth)
@@ -212,18 +200,18 @@ function HBox:updateSize()
         local extraSpace = availableWidth - contentWidth
         startX = self.x + extraSpace / 2
     elseif self.justify == "space-evenly" then
-        gap = (availableWidth - sumChildrenWidth) / (#self.children + 1)
+        gap = (availableWidth - sumChildrenWidth) / (numChildren + 1)
         startX = self.x + gap
     elseif self.justify == "space-between" then
-        if #self.children > 1 then
-            gap = (availableWidth - sumChildrenWidth) / (#self.children - 1)
+        if numChildren > 1 then
+            gap = (availableWidth - sumChildrenWidth) / (numChildren - 1)
         end
         startX = self.x
     end
 
     childX = startX
 
-    for _, child in ipairs(self.children) do
+    for _, child in ipairs(children) do
         local vertAlign = child.vertAlign or "stretch"
 
         local childY = self.y

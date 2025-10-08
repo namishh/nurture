@@ -4,7 +4,8 @@ local nurture = {
 
     _fonts = {},
     _defaultFont = nil,
-    _widgets = {}
+    _widgets = {},
+    _widgetsByUUID = {}
 }
 
 function nurture:new()
@@ -12,6 +13,7 @@ function nurture:new()
     self._fonts = {}
     self._defaultFont = nil
     self._widgets = {}
+    self._widgetsByUUID = {}
     return self
 end
 
@@ -88,6 +90,7 @@ function nurture:addWidget(widget)
     end
     
     table.insert(self._widgets, widget)
+    self._widgetsByUUID[widget.uuid] = widget
     return widget
 end
 
@@ -95,6 +98,7 @@ function nurture:removeWidget(widget)
     for i, w in ipairs(self._widgets) do
         if w == widget then
             table.remove(self._widgets, i)
+            self._widgetsByUUID[widget.uuid] = nil
             return true
         end
     end
@@ -103,10 +107,15 @@ end
 
 function nurture:clearWidgets()
     self._widgets = {}
+    self._widgetsByUUID = {}
 end
 
 function nurture:getWidgets()
     return self._widgets
+end
+
+function nurture:getFromUUID(uuid)
+    return self._widgetsByUUID[uuid]
 end
 
 function nurture:update(dt)

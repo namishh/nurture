@@ -101,25 +101,6 @@ function love.load()
     shaderBox:setUpdateCallback(function(widget, dt)
         widget:setBackgroundShaderValue("time", love.timer.getTime())
     end)
-    
-    local fullShaderBox = nurture.Box:new(N, {
-        x = 300,
-        y = 150,
-        forcedWidth = 150,
-        forcedHeight = 150,
-        padding = 10,
-        backgroundColor = { 1, 1, 1, 1 },
-        shader = "assets/grad.glsl",
-        children = {
-            nurture.TextLabel:new(N, "Full Shader!", "BodyFont", {
-                color = { 1, 1, 1, 1 },
-            }),
-        }
-    })
-    
-    fullShaderBox:setUpdateCallback(function(widget, dt)
-        widget:setShaderValue("time", love.timer.getTime())
-    end)
 end
 
 function love.update(dt)

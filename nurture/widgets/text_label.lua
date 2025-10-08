@@ -18,9 +18,10 @@ function TextLabel:new(N, text, fontName, options)
 
     self.shadow = options.shadow or {}
     self:updateSize()
-    self._widgetCannotHaveChildren = true -- text label cannot have children
+    self._widgetCannotHaveChildren = true
 
     N:addWidget(self)
+    N._widgetsByUUID[self.uuid] = self
 
     return self
 end
