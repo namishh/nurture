@@ -10,6 +10,7 @@ function Box:new(N, options)
     options = options or {}
 
     self.paddingLeft = 0
+    self.shadow = options.shadow or {}
     self.paddingRight = 0
     self.paddingTop = 0
     self.paddingBottom = 0
@@ -40,7 +41,7 @@ function Box:new(N, options)
     self.forcedHeight = options.forcedHeight
 
     self.vertAlign = options.vertAlign
-    
+
     if options.zIndex then
         self.zIndex = options.zIndex
     end
@@ -69,6 +70,15 @@ function Box:setPadding(padding)
     else
         error("Box:setPadding(): Padding must be a number or a table")
     end
+end
+
+function Box:setShadowOffset(x, y)
+    self.shadow.x = x
+    self.shadow.y = y
+end
+
+function Box:setShadowColor(r, g, b, a)
+    self.shadow.color = { r, g, b, a }
 end
 
 function Box:setChild(child)
@@ -197,6 +207,15 @@ end
 function Box:draw()
     if not self.visible then
         return
+    end
+    if self.shadow then
+        if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+            if self.shadow.color[4] > 0 then
+                love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
+                    self.shadow.color[4])
+                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height)
+            end
+        end
     end
 
     if self.backgroundColor[4] > 0 then
