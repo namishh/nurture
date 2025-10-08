@@ -9,15 +9,18 @@
 - Better management of widgets
 - Classname support for all widgets with efficient lookup
 - VBox
+- Enabled/Disabled Flag
 - Testing system
 - Text wrapping
+- Button
+- Scaling
+- Rotation
 
 ## Todo:
 - Grid
 - HFracBox (fraction box)
 - VFracBox (fraction box)
 - Image / Video
-- Button
 - Tabs
 - Slider
   - Horizontal
@@ -33,4 +36,3 @@
 ## Different Todo:
 - Extends the depths of what i have currently
 - Animation Support?
-- Enabled/Disabled Flag
