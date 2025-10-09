@@ -213,6 +213,7 @@ nurture.HBox = require("nurture.widgets.hbox")
 nurture.VBox = require("nurture.widgets.vbox")
 nurture.HFracBox = require("nurture.widgets.hfracbox")
 nurture.VFracBox = require("nurture.widgets.vfracbox")
+nurture.Grid = require("nurture.widgets.grid")
 
 nurture.Image = require("nurture.widgets.image")
 nurture.Video = require("nurture.widgets.video")

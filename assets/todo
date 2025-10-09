@@ -18,25 +18,20 @@
 - HFracBox (fraction box)
 - Dynamic addition to HFracBox
 - VFracBox (fraction box)
+- Image / Video
+- Shapes
+- Grid
 
 ## Todo:
-- Grid
-- Image / Video
-- Tabs
+- Stack (widgets on top of each other)
 - Slider
   - Horizontal
     - Split
     - Thumb
   - Vertical
 - ProgressBar
+- Tabs
 - Input
-- Stack (widgets on top of each other)
 - Draggable
 - DraggableList
 - Drag and Drop Area
-- Shapes
-- Animated Sprite
-
-## Different Todo:
-- Extends the depths of what i have currently
-- Animation Support?
