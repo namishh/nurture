@@ -214,4 +214,15 @@ nurture.VBox = require("nurture.widgets.vbox")
 nurture.HFracBox = require("nurture.widgets.hfracbox")
 nurture.VFracBox = require("nurture.widgets.vfracbox")
 
+nurture.Image = require("nurture.widgets.image")
+nurture.Video = require("nurture.widgets.video")
+
+nurture.Shape = {
+    Circle = require("nurture.widgets.shapes.circle"),
+    Rectangle = require("nurture.widgets.shapes.rectangle"),
+    Line = require("nurture.widgets.shapes.line"),
+    Point = require("nurture.widgets.shapes.point"),
+    Polygon = require("nurture.widgets.shapes.polygon")
+}
+
 return nurture
