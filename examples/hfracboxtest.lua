@@ -355,9 +355,158 @@ local function load(nurture, N)
             })
         }
     })
+
+    local hfracbox10 = nurture.HFracBox:new(N, {
+        x = 20,
+        y = 540,
+        spacing = 8,
+        forcedWidth = 400,
+        forcedHeight = 70,
+        classname = "hfracbox-dynamic-no-ratios",
+        children = {
+            nurture.Box:new(N, {
+                backgroundColor = { 0.7, 0.3, 0.5, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "Start", "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            })
+        }
+    })
+
+    local timer10 = 0
+    local childCount10 = 1
+    hfracbox10:setUpdateCallback(function(widget, dt)
+        timer10 = timer10 + dt
+        if timer10 > 1.5 and childCount10 < 4 then
+            childCount10 = childCount10 + 1
+            widget:addChild(nurture.Box:new(N, {
+                backgroundColor = { 0.3 + childCount10 * 0.1, 0.3, 0.5 + childCount10 * 0.1, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "Auto " .. childCount10, "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            }))
+            timer10 = 0
+        end
+    end)
+
+    local hfracbox11 = nurture.HFracBox:new(N, {
+        x = 450,
+        y = 450,
+        spacing = 8,
+        forcedWidth = 350,
+        forcedHeight = 70,
+        ratios = { 2 },
+        classname = "hfracbox-dynamic-with-ratios",
+        children = {
+            nurture.Box:new(N, {
+                backgroundColor = { 0.5, 0.7, 0.3, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "2x Start", "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            })
+        }
+    })
+
+    local timer11 = 0
+    local childCount11 = 1
+    hfracbox11:setUpdateCallback(function(widget, dt)
+        timer11 = timer11 + dt
+        if timer11 > 2 and childCount11 < 4 then
+            childCount11 = childCount11 + 1
+            widget:addChild(nurture.Box:new(N, {
+                backgroundColor = { 0.5, 0.7 - childCount11 * 0.1, 0.3 + childCount11 * 0.15, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "1x Child " .. childCount11, "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            }))
+            local newRatios = { 2 }
+            for i = 2, childCount11 do
+                newRatios[i] = 1
+            end
+            widget:setRatios(newRatios)
+            timer11 = 0
+        end
+    end)
+
+    local hfracbox12 = nurture.HFracBox:new(N, {
+        x = 450,
+        y = 540,
+        spacing = 8,
+        forcedWidth = 350,
+        forcedHeight = 70,
+        ratios = { 1, 1, 1 },
+        classname = "hfracbox-changing-ratios",
+        children = {
+            nurture.Box:new(N, {
+                backgroundColor = { 0.8, 0.4, 0.2, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "A", "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            }),
+            nurture.Box:new(N, {
+                backgroundColor = { 0.2, 0.8, 0.4, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "B", "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            }),
+            nurture.Box:new(N, {
+                backgroundColor = { 0.4, 0.2, 0.8, 0.8 },
+                classname = "box-item",
+                rounding = 5,
+                children = {
+                    nurture.TextLabel:new(N, "C", "BodyFont", {
+                        color = { 1, 1, 1, 1 },
+                    })
+                }
+            })
+        }
+    })
+
+    local timer12 = 0
+    local ratioPhase = 1
+    local ratioConfigs = {
+        { 1, 1, 1 },
+        { 3, 1, 1 },
+        { 1, 3, 1 },
+        { 1, 1, 3 },
+        { 2, 1, 2 },
+        { 1, 2, 1 }
+    }
+
+    hfracbox12:setUpdateCallback(function(widget, dt)
+        timer12 = timer12 + dt
+        if timer12 > 1.5 then
+            ratioPhase = (ratioPhase % #ratioConfigs) + 1
+            widget:setRatios(ratioConfigs[ratioPhase])
+            timer12 = 0
+        end
+    end)
 end
 
 return {
     load = load
 }
-

@@ -54,3 +54,9 @@
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/textwrapping.png)
 
 <br>
+
+10. [Horizontal Fractional Box](https://github.com/namishh/nurture/blob/main/examples/hfracboxtest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/hfracbox.png)
+
+<br>

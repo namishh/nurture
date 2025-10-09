@@ -211,8 +211,15 @@ function HFracBox:updateSize()
 
     if self.ratios then
         if #self.ratios ~= numChildren then
-            error("HFracBox:updateSize(): Number of ratios (" .. #self.ratios .. 
-                  ") must match number of children (" .. numChildren .. ")")
+            if #self.ratios < numChildren then
+                for i = #self.ratios + 1, numChildren do
+                    self.ratios[i] = 1
+                end
+            elseif #self.ratios > numChildren then
+                for i = numChildren + 1, #self.ratios do
+                    self.ratios[i] = nil
+                end
+            end
         end
     end
 
