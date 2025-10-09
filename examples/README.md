@@ -60,3 +60,14 @@
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/hfracbox.png)
 
 <br>
+
+11. [Shapes](https://github.com/namishh/nurture/blob/main/examples/shapestest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/shapes.png)
+
+
+<br>
+
+12. [Images](https://github.com/namishh/nurture/blob/main/examples/imagetest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/image.png)
