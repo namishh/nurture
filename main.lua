@@ -2,10 +2,11 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "textwrapping"
+local CURRENT_EXAMPLE = "hfracboxtest"
 local currentExampleModule = nil
 
 function love.load()
+    love.window.setMode(900, 650)
     love.window.setTitle("nurture - " .. (CURRENT_EXAMPLE or "blank"))
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setBackgroundColor(0.15, 0.15, 0.2)

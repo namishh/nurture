@@ -206,9 +206,11 @@ end
 
 nurture.BaseWidget = require("nurture.basewidget")
 nurture.TextLabel = require("nurture.widgets.text_label")
+nurture.Button = require("nurture.widgets.button")
+
 nurture.Box = require("nurture.widgets.box")
 nurture.HBox = require("nurture.widgets.hbox")
 nurture.VBox = require("nurture.widgets.vbox")
-nurture.Button = require("nurture.widgets.button")
+nurture.HFracBox = require("nurture.widgets.hfracbox")
 
 return nurture

@@ -7,7 +7,6 @@ VBox.__index = VBox
 function VBox:new(N, options)
     local self = setmetatable(BaseWidget:new("VBox"), VBox)
     self.nurture = N
-    self.options = options or {}
 
     self.x = options.x or 0
     self.y = options.y or 0 

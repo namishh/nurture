@@ -15,10 +15,11 @@
 - Button
 - Scaling
 - Rotation
+- HFracBox (fraction box)
 
 ## Todo:
+- Dynamic addition to HFracBox
 - Grid
-- HFracBox (fraction box)
 - VFracBox (fraction box)
 - Image / Video
 - Tabs
