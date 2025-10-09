@@ -64,7 +64,7 @@ function love.draw()
 end
 
 function love.update()
-    -- no need to draw each one of them seperately
+    -- no need to draw and update each one of them seperately
     N:update()
 end
 
