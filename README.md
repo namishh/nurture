@@ -27,7 +27,7 @@ and then run it using
 love .
 ```
 
-### Most Basic Set up
+### Most Basic Setup
 
 To use `nurture` in your project, copy the `nurture` directory to your love2d project. In your own `main.lua`.
 
