@@ -218,6 +218,7 @@ nurture.Stack = require("nurture.widgets.stack")
 
 nurture.Image = require("nurture.widgets.image")
 nurture.Video = require("nurture.widgets.video")
+nurture.Progress = require("nurture.widgets.progress")
 
 nurture.Shape = {
     Circle = require("nurture.widgets.shapes.circle"),

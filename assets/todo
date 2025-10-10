@@ -22,17 +22,14 @@
 - Shapes
 - Grid
 - Stack (widgets on top of each other)
+- ProgressBar, Vertical and Horizontal
 
 ## Todo:
-- ProgressBar
-- Slider
-  - Horizontal
-    - Split
-    - Thumb
-  - Vertical
+- Slider, Horizontal and Vertical
 - Input
 - Tabs
 - Pagination
 - Draggable
 - DraggableList
 - Drag and Drop Area
+- Centralised Handler for Shaders
