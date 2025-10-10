@@ -23,13 +23,11 @@
 - Grid
 - Stack (widgets on top of each other)
 - ProgressBar, Vertical and Horizontal
+- Centralised Handler for Shaders
 
 ## Todo:
 - Slider, Horizontal and Vertical
 - Input
 - Tabs
 - Pagination
-- Draggable
-- DraggableList
 - Drag and Drop Area
-- Centralised Handler for Shaders

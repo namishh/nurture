@@ -2,7 +2,7 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "boxtest"
+local CURRENT_EXAMPLE = "vfracboxtest"
 local currentExampleModule = nil
 
 function love.load()
@@ -50,6 +50,10 @@ end
 
 function love.mousereleased(x, y, button)
     N:mousereleased(x, y, button)
+end
+
+function love.mousemoved(x, y, dx,dy)
+    N:mousemoved(x,y,dx,dy)
 end
 
 function love.keypressed(key)

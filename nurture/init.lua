@@ -7,7 +7,10 @@ local nurture = {
     _widgets = {},
     _widgetsByUUID = {},
     _widgetsByClassName = {},
-    _shaders = {}
+    _shaders = {},
+
+    _draggedWidget = nil,
+    _isDragging = false
 }
 
 function nurture:new()
@@ -18,6 +21,8 @@ function nurture:new()
     self._widgetsByUUID = {}
     self._widgetsByClassName = {}
     self._shaders = {}
+    self._draggedWidget = nil
+    self._isDragging = false
     return self
 end
 
@@ -214,11 +219,23 @@ function nurture:mousepressed(x, y, button)
             if widget.onMousePressed then
                 widget:onMousePressed(x, y, button)
             end
+
+            if widget._canBeDragged then
+                self._draggedWidget = widget
+                self._isDragging = true
+            end
         end
     end
 end
 
 function nurture:mousereleased(x, y, button)
+    if self._isDragging and self._draggedWidget then
+        if self._draggedWidget.onDragEnd then
+            self._draggedWidget:onDragEnd(x, y, button)
+        end
+        self._isDragging = false
+        self._draggedWidget = nil
+    end
     for _, widget in ipairs(self._widgets) do
         if widget.enabled then
             if widget.onMouseReleased then
@@ -228,9 +245,21 @@ function nurture:mousereleased(x, y, button)
     end
 end
 
+function nurture:mousemoved(x,y,dx,dy)
+    if self._isDragging and self._draggedWidget then
+        if self._draggedWidget.onDrag then
+            self._draggedWidget:onDrag(x, y, dx, dy)
+        end
+    end
+
+    for _, widget in ipairs(self._widgets) do
+        if widget.enabled and widget.onMouseMoved then
+            widget:onMouseMoved(x, y, dx, dy)
+        end
+    end
+end
+
 nurture.BaseWidget = require("nurture.basewidget")
-nurture.TextLabel = require("nurture.widgets.text_label")
-nurture.Button = require("nurture.widgets.button")
 
 nurture.Box = require("nurture.widgets.box")
 nurture.HBox = require("nurture.widgets.hbox")
@@ -243,6 +272,8 @@ nurture.Stack = require("nurture.widgets.stack")
 nurture.Image = require("nurture.widgets.image")
 nurture.Video = require("nurture.widgets.video")
 nurture.Progress = require("nurture.widgets.progress")
+nurture.TextLabel = require("nurture.widgets.text_label")
+nurture.Button = require("nurture.widgets.button")
 
 nurture.Shape = {
     Circle = require("nurture.widgets.shapes.circle"),
