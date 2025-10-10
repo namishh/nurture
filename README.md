@@ -27,6 +27,7 @@ Take a look at the [examples](https://github.com/namishh/nurture/tree/main/examp
 10. Tabs
 11. Image/Video
 12. Shapes
+13. Input Boxes
 
 
 ### Running the Examples
