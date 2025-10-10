@@ -2,7 +2,7 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "tabbedtest"
+local CURRENT_EXAMPLE = "inputtest"
 local currentExampleModule = nil
 
 function love.load()
@@ -59,15 +59,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
     N:keypressed(key, scancode, isrepeat)
 
-    local anyInputFocused = false
-    for _, widget in ipairs(N:getWidgets()) do
-        if widget.type == "Input" and widget.focused then
-            anyInputFocused = true
-            break
-        end
-    end
-
-    if key == "escape" and not anyInputFocused then
+    if key == "escape" then
         love.event.quit()
     end
 

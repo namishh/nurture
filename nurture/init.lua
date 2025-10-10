@@ -215,11 +215,13 @@ end
 
 function nurture:mousepressed(x, y, button)
     for _, widget in ipairs(self._widgets) do
+        if widget.enabled and widget.onMousePressed then
+            widget:onMousePressed(x, y, button)
+        end
+    end
+    
+    for _, widget in ipairs(self._widgets) do
         if widget.enabled and widget:isPointInside(x, y) then
-            if widget.onMousePressed then
-                widget:onMousePressed(x, y, button)
-            end
-
             if widget._canBeDragged then
                 self._draggedWidget = widget
                 self._isDragging = true
@@ -230,7 +232,9 @@ end
 
 function nurture:mousereleased(x, y, button)
     if self._isDragging and self._draggedWidget then
+        ---@diagnostic disable-next-line: undefined-field
         if self._draggedWidget.onDragEnd then
+            ---@diagnostic disable-next-line: undefined-field
             self._draggedWidget:onDragEnd(x, y, button)
         end
         self._isDragging = false
@@ -247,7 +251,9 @@ end
 
 function nurture:mousemoved(x,y,dx,dy)
     if self._isDragging and self._draggedWidget then
+        ---@diagnostic disable-next-line: undefined-field
         if self._draggedWidget.onDrag then
+            ---@diagnostic disable-next-line: undefined-field
             self._draggedWidget:onDrag(x, y, dx, dy)
         end
     end

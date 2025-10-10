@@ -100,3 +100,10 @@
 17. [Tabs](https://github.com/namishh/nurture/blob/main/examples/tabbedtest.lua)
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/tabbed.png)
+
+<br>
+
+
+18. [Inputs](https://github.com/namishh/nurture/blob/main/examples/inputtest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/input.png)
