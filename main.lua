@@ -15,7 +15,7 @@ function love.load()
     N:registerFont('assets/BoldPixels.ttf', 'title', 24, true)
     N:registerFont('assets/BoldPixels.ttf', 'bigtitle', 32, false)
     N:registerFont('assets/BoldPixels.ttf', 'subtitle', 18, false)
-    N:reg5sterFont('assets/BoldPixels.ttf', 'BodyFont', 14, false)
+    N:registerFont('assets/BoldPixels.ttf', 'BodyFont', 14, false)
 
     if CURRENT_EXAMPLE then
         currentExampleModule = require("examples." .. CURRENT_EXAMPLE)
