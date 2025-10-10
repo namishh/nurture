@@ -78,12 +78,12 @@ function Button:new(N, options)
 
     self.backgroundShader = nil
     if options.backgroundShader then
-        self.backgroundShader = love.graphics.newShader(options.backgroundShader)
+        self.backgroundShader = N:loadShader(options.backgroundShader)
     end
 
     self.shader = nil
     if options.shader then
-        self.shader = love.graphics.newShader(options.shader)
+        self.shader = N:loadShader(options.shader)
     end
 
     if options.zIndex then self.zIndex = options.zIndex end
@@ -163,7 +163,7 @@ end
 
 function Button:setBackgroundShader(shaderPath)
     if shaderPath then
-        self.backgroundShader = love.graphics.newShader(shaderPath)
+        self.backgroundShader = self.nurture:loadShader(shaderPath)
     else
         self.backgroundShader = nil
     end
@@ -177,7 +177,7 @@ end
 
 function Button:setShader(shaderPath)
     if shaderPath then
-        self.shader = love.graphics.newShader(shaderPath)
+        self.shader = self.nurture:loadShader(shaderPath)
     else
         self.shader = nil
     end

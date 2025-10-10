@@ -6,7 +6,8 @@ local nurture = {
     _defaultFont = nil,
     _widgets = {},
     _widgetsByUUID = {},
-    _widgetsByClassName = {}
+    _widgetsByClassName = {},
+    _shaders = {}
 }
 
 function nurture:new()
@@ -16,6 +17,7 @@ function nurture:new()
     self._widgets = {}
     self._widgetsByUUID = {}
     self._widgetsByClassName = {}
+    self._shaders = {}
     return self
 end
 
@@ -82,6 +84,28 @@ function nurture:removeFont(name)
     else
         error("nurture:removeFont(): Font " .. name .. " not found")
     end
+end
+
+function nurture:loadShader(shaderPath)
+    if type(shaderPath) ~= "string" then
+        error("nurture:loadShader(): shaderPath must be a string")
+    end
+
+    if self._shaders[shaderPath] then
+        return self._shaders[shaderPath]
+    end
+
+    local success, shader = pcall(love.graphics.newShader, shaderPath)
+    if not success then
+        error("nurture:loadShader(): Failed to load shader: " .. shaderPath .. " - " .. tostring(shader))
+    end
+
+    self._shaders[shaderPath] = shader
+    return shader
+end
+
+function nurture:clearShaderCache()
+    self._shaders = {}
 end
 
 function nurture:addWidget(widget)
