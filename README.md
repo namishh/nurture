@@ -1,7 +1,7 @@
 ### Nurture: A Löve2D Library for UI
 
 > [!CAUTION]
-> This library is in active development and not meant to be used for any serious projects for now.
+> Although I have tried to made this library as general-purpose as possible, this is still a personal library primary intended to serve me in my projects.
 
 <br>
 
@@ -12,6 +12,22 @@
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/hboxvboxcombined.png)
 
 Take a look at the [examples](https://github.com/namishh/nurture/tree/main/examples) directory for some working examples and screenshots.
+
+### List of Implemented Widgets
+
+1. Box
+2. Horizontal/Vertical Box
+3. Horizontal/Vertical Fraction Box
+4. Grid
+5. Stack Layout
+6. Buttons
+7. Progressbars
+8. Sliders
+9. Text Label
+10. Tabs
+11. Image/Video
+12. Shapes
+
 
 ### Running the Examples
 
@@ -77,5 +93,3 @@ function love.mousereleased(x, y, button)
 end
 
 ```
-
-Further documention to be available later.

@@ -88,8 +88,15 @@
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/progress.png)
 
-
+<br>
 
 16. [Sliders](https://github.com/namishh/nurture/blob/main/examples/slidertest.lua)
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/sliders.png)
+
+<br>
+
+
+17. [Tabs](https://github.com/namishh/nurture/blob/main/examples/tabbedtest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/tabbed.png)
