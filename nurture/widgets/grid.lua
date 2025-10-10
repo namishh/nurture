@@ -153,12 +153,18 @@ function Grid:addChild(child)
     end
 end
 
-function Grid:removeChild(child)
+function Grid:removeChild(child, deleteChild)
     for row = 1, self.rows do
         for col = 1, self.columns do
             if self.cells[row][col] == child then
                 self.cells[row][col] = nil
-                self:_removeChildRelationship(child)
+                
+                if deleteChild and child.delete then
+                    child:delete()
+                else
+                    self:_removeChildRelationship(child)
+                end
+                
                 self:updateSize()
                 
                 if self.removeChildCallback then
@@ -170,12 +176,16 @@ function Grid:removeChild(child)
     end
 end
 
-function Grid:clear()
+function Grid:clear(deleteChildren)
     for row = 1, self.rows do
         for col = 1, self.columns do
             local child = self.cells[row][col]
             if child then
-                self:_removeChildRelationship(child)
+                if deleteChildren and child.delete then
+                    child:delete()
+                else
+                    self:_removeChildRelationship(child)
+                end
                 self.cells[row][col] = nil
             end
         end

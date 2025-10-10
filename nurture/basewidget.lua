@@ -333,4 +333,61 @@ function BaseWidget:_removeChildRelationship(child)
     end
 end
 
+function BaseWidget:delete()
+    if not self.nurture then
+        return
+    end
+
+    local children = self:getChildren()
+    for _, child in ipairs(children) do
+        if child and child.delete then
+            child:delete()
+        end
+    end
+
+    if self.parentUUID then
+        local parent = self.nurture:getFromUUID(self.parentUUID)
+        if parent then
+            for i, uuid in ipairs(parent.childrenUUIDs) do
+                if uuid == self.uuid then
+                    table.remove(parent.childrenUUIDs, i)
+                    break
+                end
+            end
+        end
+    end
+
+    for i, widget in ipairs(self.nurture._widgets) do
+        if widget.uuid == self.uuid then
+            table.remove(self.nurture._widgets, i)
+            break
+        end
+    end
+
+    self.nurture._widgetsByUUID[self.uuid] = nil
+
+    if self.classname and self.nurture._widgetsByClassName[self.classname] then
+        for i, widget in ipairs(self.nurture._widgetsByClassName[self.classname]) do
+            if widget.uuid == self.uuid then
+                table.remove(self.nurture._widgetsByClassName[self.classname], i)
+                break
+            end
+        end
+        if #self.nurture._widgetsByClassName[self.classname] == 0 then
+            self.nurture._widgetsByClassName[self.classname] = nil
+        end
+    end
+
+    self.updateCallback = nil
+    self.drawCallback = nil
+    self.clickCallback = nil
+    self.mouseOverCallback = nil
+    self.mouseLeaveCallback = nil
+
+    self.parentUUID = nil
+    self.childrenUUIDs = {}
+
+    self.nurture = nil
+end
+
 return BaseWidget

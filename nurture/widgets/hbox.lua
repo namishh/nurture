@@ -88,8 +88,13 @@ function HBox:addChild(child)
     end
 end
 
-function HBox:removeChild(child)
-    self:_removeChildRelationship(child)
+function HBox:removeChild(child, deleteChild)
+    if deleteChild and child.delete then
+        child:delete()
+    else
+        self:_removeChildRelationship(child)
+    end
+    
     self:updateSize()
 
     if self.removeChildCallback then
@@ -97,10 +102,14 @@ function HBox:removeChild(child)
     end
 end
 
-function HBox:clear()
+function HBox:clear(deleteChildren)
     local children = self:getChildren()
     for _, child in ipairs(children) do
-        self:_removeChildRelationship(child)
+        if deleteChildren and child.delete then
+            child:delete()
+        else
+            self:_removeChildRelationship(child)
+        end
     end
     self:updateSize()
 end

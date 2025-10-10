@@ -89,8 +89,15 @@ function VBox:addChild(child)
     end
 end
 
-function VBox:removeChild(child)
-    self:_removeChildRelationship(child)
+function VBox:removeChild(child, deleteChild)
+    if deleteChild and child.delete then
+        -- Delete handles removing from parent
+        child:delete()
+    else
+        -- Only remove relationship if not deleting
+        self:_removeChildRelationship(child)
+    end
+    
     self:updateSize()
 
     if self.removeChildCallback then
@@ -98,10 +105,16 @@ function VBox:removeChild(child)
     end
 end
 
-function VBox:clear()
+function VBox:clear(deleteChildren)
     local children = self:getChildren()
     for _, child in ipairs(children) do
-        self:_removeChildRelationship(child)
+        if deleteChildren and child.delete then
+            -- Delete handles removing from parent
+            child:delete()
+        else
+            -- Only remove relationship if not deleting
+            self:_removeChildRelationship(child)
+        end
     end
     self:updateSize()
 end

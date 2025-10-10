@@ -80,8 +80,13 @@ function VFracBox:addChild(child)
     end
 end
 
-function VFracBox:removeChild(child)
-    self:_removeChildRelationship(child)
+function VFracBox:removeChild(child, deleteChild)
+    if deleteChild and child.delete then
+        child:delete()
+    else
+        self:_removeChildRelationship(child)
+    end
+    
     self:updateSize()
 
     if self.removeChildCallback then
@@ -89,10 +94,14 @@ function VFracBox:removeChild(child)
     end
 end
 
-function VFracBox:clear()
+function VFracBox:clear(deleteChildren)
     local children = self:getChildren()
     for _, child in ipairs(children) do
-        self:_removeChildRelationship(child)
+        if deleteChildren and child.delete then
+            child:delete()
+        else
+            self:_removeChildRelationship(child)
+        end
     end
     self:updateSize()
 end

@@ -80,8 +80,15 @@ function HFracBox:addChild(child)
     end
 end
 
-function HFracBox:removeChild(child)
-    self:_removeChildRelationship(child)
+function HFracBox:removeChild(child, deleteChild)
+    if deleteChild and child.delete then
+        -- Delete handles removing from parent
+        child:delete()
+    else
+        -- Only remove relationship if not deleting
+        self:_removeChildRelationship(child)
+    end
+    
     self:updateSize()
 
     if self.removeChildCallback then
@@ -89,10 +96,16 @@ function HFracBox:removeChild(child)
     end
 end
 
-function HFracBox:clear()
+function HFracBox:clear(deleteChildren)
     local children = self:getChildren()
     for _, child in ipairs(children) do
-        self:_removeChildRelationship(child)
+        if deleteChildren and child.delete then
+            -- Delete handles removing from parent
+            child:delete()
+        else
+            -- Only remove relationship if not deleting
+            self:_removeChildRelationship(child)
+        end
     end
     self:updateSize()
 end

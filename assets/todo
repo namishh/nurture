@@ -24,10 +24,11 @@
 - Stack (widgets on top of each other)
 - ProgressBar, Vertical and Horizontal
 - Centralised Handler for Shaders
+- Slider, Horizontal and Vertical
+- Destroying stuff
 
 ## Todo:
-- Slider, Horizontal and Vertical
 - Input
 - Tabs
 - Pagination
-- Drag and Drop Area
+- Dragging Callbacks
