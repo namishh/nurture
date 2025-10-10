@@ -271,9 +271,10 @@ nurture.Stack = require("nurture.widgets.stack")
 
 nurture.Image = require("nurture.widgets.image")
 nurture.Video = require("nurture.widgets.video")
-nurture.Progress = require("nurture.widgets.progress")
 nurture.TextLabel = require("nurture.widgets.text_label")
 nurture.Button = require("nurture.widgets.button")
+nurture.Progress = require("nurture.widgets.progress")
+nurture.Slider = require("nurture.widgets.slider")
 
 nurture.Shape = {
     Circle = require("nurture.widgets.shapes.circle"),

@@ -84,6 +84,12 @@
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/stack.png)
 
-15. [Stack](https://github.com/namishh/nurture/blob/main/examples/progresstest.lua)
+15. [Progressbara](https://github.com/namishh/nurture/blob/main/examples/progresstest.lua)
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/progress.png)
+
+
+
+16. [Sliders](https://github.com/namishh/nurture/blob/main/examples/slidertest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/sliders.png)
