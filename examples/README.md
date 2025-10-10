@@ -77,3 +77,9 @@
 13. [Grid](https://github.com/namishh/nurture/blob/main/examples/gridtest.lua)
 
 ![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/grid.png)
+
+<br>
+
+14. [Stack](https://github.com/namishh/nurture/blob/main/examples/stacktest.lua)
+
+![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/stack.png)

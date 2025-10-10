@@ -21,17 +21,18 @@
 - Image / Video
 - Shapes
 - Grid
+- Stack (widgets on top of each other)
 
 ## Todo:
-- Stack (widgets on top of each other)
+- ProgressBar
 - Slider
   - Horizontal
     - Split
     - Thumb
   - Vertical
-- ProgressBar
-- Tabs
 - Input
+- Tabs
+- Pagination
 - Draggable
 - DraggableList
 - Drag and Drop Area

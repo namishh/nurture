@@ -46,6 +46,9 @@ function Box:new(N, options)
     self.horizAlign = options.horizAlign
     self.vertAlign = options.vertAlign
 
+    self.stackHorizAlign = options.stackHorizAlign
+    self.stackVertAlign = options.stackVertAlign
+
     self.rx = nil
     self.ry = nil
     self.segments = nil

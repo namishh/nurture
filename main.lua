@@ -2,7 +2,7 @@ local nurture = require("nurture")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "gridtest"
+local CURRENT_EXAMPLE = "stacktest"
 local currentExampleModule = nil
 
 function love.load()
