@@ -35,6 +35,8 @@ function BaseWidget:new(type)
     self.clickCallback = nil
     self.mouseOverCallback = nil
     self.mouseLeaveCallback = nil
+    self.dragCallback = nil
+    self.dragEndCallback = nil
     self._isMouseOver = false
     return self
 end
@@ -181,6 +183,14 @@ function BaseWidget:setMouseLeaveCallback(callback)
     self.mouseLeaveCallback = callback
 end
 
+function BaseWidget:setDragCallback(callback)
+    self.dragCallback = callback
+end
+
+function BaseWidget:setDragEndCallback(callback)
+    self.dragEndCallback = callback
+end
+
 function BaseWidget:onClick(x, y, button)
     if not self.enabled then
         return
@@ -208,6 +218,26 @@ function BaseWidget:onMouseLeave(x, y)
     
     if self.mouseLeaveCallback then
         self.mouseLeaveCallback(self, x, y)
+    end
+end
+
+function BaseWidget:onDrag(x, y, dx, dy)
+    if not self.enabled then
+        return
+    end
+    
+    if self.dragCallback then
+        self.dragCallback(self, x, y, dx, dy)
+    end
+end
+
+function BaseWidget:onDragEnd(x, y, button)
+    if not self.enabled then
+        return
+    end
+    
+    if self.dragEndCallback then
+        self.dragEndCallback(self, x, y, button)
     end
 end
 
@@ -383,6 +413,8 @@ function BaseWidget:delete()
     self.clickCallback = nil
     self.mouseOverCallback = nil
     self.mouseLeaveCallback = nil
+    self.dragCallback = nil
+    self.dragEndCallback = nil
 
     self.parentUUID = nil
     self.childrenUUIDs = {}

@@ -26,9 +26,9 @@
 - Centralised Handler for Shaders
 - Slider, Horizontal and Vertical
 - Destroying stuff
+- Dragging Callbacks
 
 ## Todo:
 - Input
 - Tabs
 - Pagination
-- Dragging Callbacks

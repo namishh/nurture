@@ -212,12 +212,15 @@ function Slider:onMouseReleased(x, y, button)
     end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function Slider:onDrag(x, y, dx, dy)
     if self._isDraggingKnob then
         self:updateValueFromPosition(x, y)
     end
 end
 
+
+---@diagnostic disable-next-line: duplicate-set-field
 function Slider:onDragEnd(x, y, button)
     self._isDraggingKnob = false
 end

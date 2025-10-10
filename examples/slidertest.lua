@@ -328,8 +328,8 @@ local function load(nurture, N)
         width = 20,
         height = 30,
         color = { 0.8, 0.5, 0.8, 1.0 },
-        rx = 5,
-        ry = 5
+        rx = 0,
+        ry = 0
     })
 
     local stepSlider = nurture.Slider:new(N, {
@@ -342,7 +342,7 @@ local function load(nurture, N)
         value = 5,
         stepSize = 10,
         trackColor = { 0.3, 0.3, 0.3, 1.0 },
-        trackRounding = 10,
+        trackRounding = 0,
         fillColor = { 0.8, 0.5, 0.8, 0.7 },
         fillType = "left",
         knob = stepKnob,
