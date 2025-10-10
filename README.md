@@ -1,7 +1,7 @@
 ### Nurture: A Löve2D Library for UI
 
 > [!CAUTION]
-> Although I have tried to made this library as general-purpose as possible, this is still a personal library primary intended to serve me in my projects.
+> Although I have tried to made this library as general-purpose as possible, this is still a personal library, primarily made for my own projects.
 
 <br>
 
