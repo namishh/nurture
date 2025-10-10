@@ -259,6 +259,22 @@ function nurture:mousemoved(x,y,dx,dy)
     end
 end
 
+function nurture:keypressed(key, scancode, isrepeat)
+    for _, widget in ipairs(self._widgets) do
+        if widget.enabled and widget.onKeyPress then
+            widget:onKeyPress(key, scancode, isrepeat)
+        end
+    end
+end
+
+function nurture:textinput(text)
+    for _, widget in ipairs(self._widgets) do
+        if widget.enabled and widget.onTextInput then
+            widget:onTextInput(text)
+        end
+    end
+end
+
 nurture.BaseWidget = require("nurture.basewidget")
 
 nurture.Box = require("nurture.widgets.box")
@@ -276,6 +292,7 @@ nurture.TextLabel = require("nurture.widgets.text_label")
 nurture.Button = require("nurture.widgets.button")
 nurture.Progress = require("nurture.widgets.progress")
 nurture.Slider = require("nurture.widgets.slider")
+nurture.Input = require("nurture.widgets.input")
 
 nurture.Shape = {
     Circle = require("nurture.widgets.shapes.circle"),

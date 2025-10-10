@@ -56,12 +56,26 @@ function love.mousemoved(x, y, dx,dy)
     N:mousemoved(x,y,dx,dy)
 end
 
-function love.keypressed(key)
-    if key == "escape" then
+function love.keypressed(key, scancode, isrepeat)
+    N:keypressed(key, scancode, isrepeat)
+
+    local anyInputFocused = false
+    for _, widget in ipairs(N:getWidgets()) do
+        if widget.type == "Input" and widget.focused then
+            anyInputFocused = true
+            break
+        end
+    end
+
+    if key == "escape" and not anyInputFocused then
         love.event.quit()
     end
 
     if currentExampleModule and currentExampleModule.keypressed then
-        currentExampleModule.keypressed(key)
+        currentExampleModule.keypressed(key, scancode, isrepeat)
     end
+end
+
+function love.textinput(text)
+   N:textinput(text) 
 end
