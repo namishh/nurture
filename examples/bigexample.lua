@@ -1,5 +1,7 @@
 local flux = require("assets.flux")
 
+IS_OVERLAY_OPEN = false 
+
 local function load(nurture, N)
 
     local function create3DButton(text, onClick)
@@ -17,10 +19,15 @@ local function load(nurture, N)
             },
             colors = {
                 primaryColor = { 0.2, 0.2, 0.2, 1.0 },
-                hoveredColor = { 0.4, 0.4, 0.4, 1.0 },
-                pressedColor = { 0.3, 0.3, 0.3, 1.0 }
+                hoveredColor = { 0.2, 0.2, 0.2, 1.0 },
+                pressedColor = { 0.2, 0.2, 0.2, 1.0 }
             },
-            onClick = onClick,
+            onClick = function(self)
+                if IS_OVERLAY_OPEN then
+                    return
+                end
+                onClick(self)
+            end,
             child = nurture.TextLabel:new(N, text, "bigtitle", {
                 color = { 1, 1, 1, 1 },
                 shadow = {
@@ -53,24 +60,35 @@ local function load(nurture, N)
         createButtonSway()
 
         button:setOnMouseOver(function(self, x, y)
+            if IS_OVERLAY_OPEN then
+                return
+            end
             flux.to(self, 0.1, { _scaleX = 1.08, _scaleY = 1.08 }):ease("quadout")
         end)
         
         button:setOnMouseLeave(function(self, x, y)
+            if IS_OVERLAY_OPEN then
+                return
+            end
             flux.to(self, 0.1, { _scaleX = 1.0, _scaleY = 1.0 }):ease("quadout")
         end)
         
         button:setUpdateCallback(function(self, dt)
-            if self._isPressed and not self._wasPressed then
-                self._baseY = self.y
-                self.y = self.y + 5
-                self:setShadowOffset(1, 1)
-                self._wasPressed = true
-            elseif not self._isPressed and self._wasPressed then
-                self.y = self._baseY
-                self:setShadowOffset(0, 6)
-                self._wasPressed = false
+            if IS_OVERLAY_OPEN then
+                return
             end
+                if self._isPressed and not self._wasPressed then
+                    self._baseY = self.y
+                    self.y = self.y + 5
+                    self:setShadowOffset(1, 1)
+                    self:updateSize()
+                    self._wasPressed = true
+                elseif not self._isPressed and self._wasPressed then
+                    self.y = self._baseY
+                    self:setShadowOffset(0, 6)
+                    self:updateSize()
+                    self._wasPressed = false
+                end
         end)
 
         return button
@@ -108,8 +126,8 @@ local function load(nurture, N)
             nurture.VBox:new(N, {
                 spacing = 20,
                 children = {
-                    create3DButton("Play", function(btn)
-                        print("Play button clicked!")
+                    create3DButton("Pause", function(btn)
+                        print("play button clicked!")
                     end),
                     create3DButton("Shop", function(btn)
                         print("Shop button clicked!")
@@ -161,11 +179,11 @@ local function load(nurture, N)
         forcedWidth = love.graphics.getWidth(),
         backgroundColor = { 0.1, 0.1, 0.1, 1 },
         backgroundShader = "assets/spinshader.glsl",
-        padding = 20,
+        padding = 40,
         children = {
             nurture.Stack:new(N, {
-                forcedHeight = love.graphics.getHeight() - 60,
-                forcedWidth = love.graphics.getWidth() - 60,
+                forcedHeight = love.graphics.getHeight() - 80,
+                forcedWidth = love.graphics.getWidth() - 80,
                 children = {
                     menu
                 }
