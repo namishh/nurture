@@ -13,7 +13,7 @@ IS_OPTIONS_OPEN = false
 SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS_OPTIONS_OPEN
 
 PROFILE = "nam"
-
+MONEY = 30
 -------------
 -- Main Load
 -------------
@@ -318,14 +318,6 @@ local function load(nurture, N)
     -- Shop Modal
     -------------
 
-    local shopTitle = nurture.TextLabel:new(N, "Shop", "bigtitle", {
-        color = { 1, 1, 1, 0 },
-        shadow = {
-            x = 6,
-            y = 6,
-            color = { 0, 0, 0, 0 }
-        }
-    })
 
     shopBox = nurture.Box:new(N, {
         backgroundColor = { 0.04, 0.04, 0.04, 0 },
@@ -336,21 +328,109 @@ local function load(nurture, N)
             y = 7,
             color = { 0, 0, 0, 0 }
         },
+        forcedWidth = 760,
         padding = 20,
-        x = love.graphics.getWidth() / 2 - 150,
-        y = love.graphics.getHeight() / 2 - 150,
+        x = love.graphics.getWidth() / 2 - 380,
+        y = love.graphics.getHeight() / 2 - 80,
         children = {
             nurture.VBox:new(N, {
                 spacing = 10,
                 children = {
-                    shopTitle
-                }
+                    nurture.HBox:new(N, {
+                        forcedWidth = 720,
+                        spacing = 10,
+                        justify = "space-between",
+                        children = {
+                            nurture.HBox:new(N, {
+                                classname="shop_title",
+                                spacing = 5,
+                                children = {
+                                    nurture.TextLabel:new(N, "S", "biggertitle", {
+                                        shadow = {
+                                            x = 3,
+                                            y = 3,
+                                            color = { 0, 0, 0, 1 }
+                                        },
+                                        color = { 1, 1, 1, 1 },
+                                    }),
+                                    nurture.TextLabel:new(N, "H", "biggertitle", {
+                                        shadow = {
+                                            x = 3,
+                                            y = 3,
+                                            color = { 0, 0, 0, 1 }
+                                        },
+                                        color = { 1, 1, 1, 1 },
+                                    }),
+                                    nurture.TextLabel:new(N, "O", "biggertitle", {
+                                        shadow = {
+                                            x = 3,
+                                            y = 3,
+                                            color = { 0, 0, 0, 1 }
+                                        },
+                                        color = { 1, 1, 1, 1 },
+                                    }),
+                                    nurture.TextLabel:new(N, "P", "biggertitle", {
+                                        shadow = {
+                                            x = 3,
+                                            y = 3,
+                                            color = { 0, 0, 0, 1 }
+                                        },
+                                        color = { 1, 1, 1, 1 },
+                                    }),
+                                }
+                            }),
+
+                            nurture.TextLabel:new(N, "$" .. tostring(MONEY), "biggertitle", {
+                                classname="shop_money",
+                                color = { 1, 0.8, 0.2, 0 },
+                                shadow = {
+                                    x = 3,
+                                    y = 3,
+                                    color = { 0, 0, 0, 0.7 }
+                                },
+                                vertAlign = "center"
+                            })
+                        }
+                    })
+                },
+                
             })
         }
     })
 
     shopBox._scaleX = 0.8
     shopBox._scaleY = 0.8
+
+    -- Animate shop title letters
+    local shopTitleBox = N:get_all_by_classname("shop_title")[1]
+    local shopLetters = {}
+    if shopTitleBox then
+        shopLetters = shopTitleBox:getChildren()
+        for i, letter in ipairs(shopLetters) do
+            letter._scaleX = 1.0
+            letter._scaleY = 1.0
+            letter._rotation = 0
+
+            -- Random variations for each letter
+            local duration = math.random(15, 25) / 10  -- 1.5 to 2.5 seconds
+            local rotationRange = math.random(2, 5)    -- 2 to 5 degrees
+            local scaleAmount = 1.0 + math.random(3, 7) / 100  -- 1.03 to 1.07
+            local delay = (i - 1) * 0.1  -- Stagger the start slightly
+
+            local function createLetterBreathing()
+                flux.to(letter, duration, { _scaleX = scaleAmount, _scaleY = scaleAmount, _rotation = math.rad(rotationRange) })
+                    :ease("sineinout")
+                    :delay(delay)
+                    :after(letter, duration, { _scaleX = 1.0, _scaleY = 1.0, _rotation = math.rad(-rotationRange) })
+                    :ease("sineinout")
+                    :after(letter, duration, { _scaleX = scaleAmount, _scaleY = scaleAmount, _rotation = 0 })
+                    :ease("sineinout")
+                    :oncomplete(createLetterBreathing)
+            end
+
+            createLetterBreathing()
+        end
+    end
 
     shopBox:setUpdateCallback(function(self, dt)
         local currentAlpha = shopBoxAlphaState.value
@@ -359,10 +439,36 @@ local function load(nurture, N)
         self.scaleX = self._scaleX
         self.scaleY = self._scaleY
 
-        if shopTitle then
-            shopTitle.color[4] = currentAlpha
-            if shopTitle.shadow and shopTitle.shadow.color then
-                shopTitle.shadow.color[4] = currentAlpha * 0.7
+        local vbox = self.nurture:getFromUUID(self.childUUID)
+        if vbox then
+            local children = vbox:getChildren()
+            for _, child in ipairs(children) do
+                if child.type == "HBox" then
+                    local hboxChildren = child:getChildren()
+                    for _, hboxChild in ipairs(hboxChildren) do
+                        if hboxChild.type == "HBox" and hboxChild.classname == "shop_title" then
+                            local letters = hboxChild:getChildren()
+                            for _, letter in ipairs(letters) do
+                                if letter.type == "TextLabel" then
+                                    letter.color[4] = currentAlpha
+                                    if letter.shadow and letter.shadow.color then
+                                        letter.shadow.color[4] = currentAlpha
+                                    end
+                                    letter.scaleX = letter._scaleX
+                                    letter.scaleY = letter._scaleY
+                                    letter.rotation = letter._rotation
+                                end
+                            end
+                        elseif hboxChild.type == "TextLabel" then
+                            hboxChild.color[4] = currentAlpha
+                            if hboxChild.shadow and hboxChild.shadow.color then
+                                hboxChild.shadow.color[4] = currentAlpha * 0.7
+                            end
+                        end
+                    end
+                elseif child.type == "TextLabel" then
+                    child.color[4] = currentAlpha
+                end
             end
         end
 
@@ -409,30 +515,76 @@ local function load(nurture, N)
         })
     })
 
-    -- Display tab content
-    local displayTab = nurture.Box:new(N, {
+    local audioTab = nurture.Box:new(N, {
         padding = 20,
-        backgroundColor = { 0.15, 0.15, 0.2, 0 },
+        backgroundColor = { 0.12, 0.12, 0.12, 0 },
         rounding = 8,
         forcedWidth = 260,
         forcedHeight = 200,
+        halign = "left",
+        valign = "top",
         child = nurture.VBox:new(N, {
             spacing = 15,
             children = {
-                nurture.TextLabel:new(N, "Display Settings", "title", {
+                nurture.TextLabel:new(N, "Audio Settings", "title", {
                     color = { 1, 1, 1, 0 }
                 }),
-                nurture.TextLabel:new(N, "Theme: Dark", "BodyFont", {
-                    color = { 0.8, 0.8, 0.8, 0 }
+                nurture.TextLabel:new(N, "Master Volume: 50", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 },
+                    classname = "master_volume_label"
                 }),
-                nurture.TextLabel:new(N, "UI Scale: 100%", "BodyFont", {
-                    color = { 0.8, 0.8, 0.8, 0 }
-                })
+                nurture.Slider:new(N, {
+                    value = 50,
+                    width = 240,
+                    height = 20,
+                    knob = nurture.Shape.Rectangle:new(N, {
+                        width = 25,
+                        height = 25,
+                        color = { 1, 1, 1, 1.0 },
+                    }),
+                    minValue = 30,
+                    maxValue = 120,
+                    stepSize = 1,
+                    onValueChange = function(slider, value)
+                        if not IS_OPTIONS_OPEN then
+                            return
+                        end
+                        local label = N:get_all_by_classname("master_volume_label")[1]
+                        if label then
+                            label:setText("Master Volume: " .. math.floor(value))
+                        end
+                    end
+                }),
+                nurture.TextLabel:new(N, "SFX: 50", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 },
+                    classname = "sfx_volume_label"
+                }),
+                nurture.Slider:new(N, {
+                    value = 50,
+                    width = 240,
+                    height = 20,
+                    knob = nurture.Shape.Rectangle:new(N, {
+                        width = 25,
+                        height = 25,
+                        color = { 1, 1, 1, 1.0 },
+                    }),
+                    minValue = 0,
+                    maxValue = 100,
+                    stepSize = 1,
+                    onValueChange = function(slider, value)
+                        if not IS_OPTIONS_OPEN then
+                            return
+                        end
+                        local label = N:get_all_by_classname("sfx_volume_label")[1]
+                        if label then
+                            label:setText("SFX: " .. math.floor(value))
+                        end
+                    end
+                }),
             }
         })
     })
 
-    -- Video tab content
     local videoTab = nurture.Box:new(N, {
         padding = 20,
         backgroundColor = { 0.12, 0.12, 0.12, 0 },
@@ -464,29 +616,57 @@ local function load(nurture, N)
                     maxValue = 120,
                     stepSize = 1,
                     onValueChange = function(slider, value)
+                        if not IS_OPTIONS_OPEN then
+                            return
+                        end
                         local label = N:get_all_by_classname("fps_cap_label")[1]
                         if label then
                             label:setText("FPS Cap: " .. math.floor(value))
                         end
                     end
-                })
+                }),
+                nurture.TextLabel:new(N, "Brightness: 50", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 },
+                    classname = "bright_label"
+                }),
+                nurture.Slider:new(N, {
+                    value = 50,
+                    width = 240,
+                    height = 20,
+                    knob = nurture.Shape.Rectangle:new(N, {
+                        width = 25,
+                        height = 25,
+                        color = { 1, 1, 1, 1.0 },
+                    }),
+                    minValue = 0,
+                    maxValue = 100,
+                    stepSize = 1,
+                    onValueChange = function(slider, value)
+                        if not IS_OPTIONS_OPEN then
+                            return
+                        end
+                        local label = N:get_all_by_classname("bright_label")[1]
+                        if label then
+                            label:setText("Brightness: " .. math.floor(value))
+                        end
+                    end
+                }),
             }
         })
     })
 
     local optionsTabbed = nurture.Tabbed:new(N, {
         tabs = {
-            general = generalTab,
-            display = displayTab,
+            audio = audioTab,
             video = videoTab
         },
-        tabOrder = { "general", "display", "video" },
-        activeTab = "general"
+        tabOrder = { "audio", "video" },
+        activeTab = "audio"
     })
 
     local optionsTabButtons = {}
-    local tabNames = { "General", "Display", "Video" }
-    local tabKeys = { "general", "display", "video" }
+    local tabNames = { "Audio", "Video" }
+    local tabKeys = { "audio", "video" }
 
     for i, tabKey in ipairs(tabKeys) do
         local isActive = (tabKey == optionsTabbed:getActiveTabName())
@@ -500,6 +680,9 @@ local function load(nurture, N)
                 pressedColor = isActive and { 0.25, 0.45, 0.65, 0 } or { 0.15, 0.15, 0.2, 0 }
             },
             onClick = function(btn)
+                if not IS_OPTIONS_OPEN then
+                    return
+                end
                 optionsTabbed:switch(tabKey)
 
                 for j, tk in ipairs(tabKeys) do
@@ -519,7 +702,7 @@ local function load(nurture, N)
                     end
                 end
             end,
-            child = nurture.TextLabel:new(N, tabNames[i], "BodyFont", {
+            child = nurture.TextLabel:new(N, tabNames[i], "subtitle", {
                 color = { 1, 1, 1, 0 }
             }),
             classname = "options_tab_" .. tabKey
@@ -591,8 +774,7 @@ local function load(nurture, N)
             end
         end
 
-        -- Update tab content
-        local tabs = { generalTab, displayTab, videoTab }
+        local tabs = { audioTab, videoTab }
         for _, tab in ipairs(tabs) do
             if tab then
                 tab.backgroundColor[4] = currentAlpha
