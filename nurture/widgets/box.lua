@@ -418,6 +418,22 @@ function Box:onMouseReleased(x, y, button)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
+function Box:onDrag(x, y, dx, dy)
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.enabled and child.onDrag then
+        child:onDrag(x, y, dx, dy)
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Box:onDragEnd(x, y, button)
+    local child = self.childUUID and self.nurture:getFromUUID(self.childUUID)
+    if child and child.enabled and child.onDragEnd then
+        child:onDragEnd(x, y, button)
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
 function Box:updateMouseState(mx, my)
     BaseWidget.updateMouseState(self, mx, my)
     

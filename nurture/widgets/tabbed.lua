@@ -250,6 +250,26 @@ function Tabbed:onMouseReleased(x, y, button)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
+function Tabbed:onDrag(x, y, dx, dy)
+    if self.activeTab and self.tabs[self.activeTab] then
+        local activeBox = self.tabs[self.activeTab]
+        if activeBox.enabled and activeBox.onDrag then
+            activeBox:onDrag(x, y, dx, dy)
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Tabbed:onDragEnd(x, y, button)
+    if self.activeTab and self.tabs[self.activeTab] then
+        local activeBox = self.tabs[self.activeTab]
+        if activeBox.enabled and activeBox.onDragEnd then
+            activeBox:onDragEnd(x, y, button)
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
 function Tabbed:updateMouseState(mx, my)
     BaseWidget.updateMouseState(self, mx, my)
     

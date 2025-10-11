@@ -214,16 +214,59 @@ function nurture:draw()
 end
 
 function nurture:mousepressed(x, y, button)
-    for _, widget in ipairs(self._widgets) do
-        if widget.enabled and widget.onMousePressed then
-            widget:onMousePressed(x, y, button)
+    local function findDraggableWidget(widget, x, y)
+        if not widget.enabled or not widget.visible then
+            return nil
         end
+
+        if widget.type == "Tabbed" and widget.activeTab and widget.tabs then
+            local activeTab = widget.tabs[widget.activeTab]
+            if activeTab then
+                local draggable = findDraggableWidget(activeTab, x, y)
+                if draggable then
+                    return draggable
+                end
+            end
+        end
+
+        if widget.childrenUUIDs then
+            for _, childUUID in ipairs(widget.childrenUUIDs) do
+                local child = self._widgetsByUUID[childUUID]
+                if child then
+                    local draggable = findDraggableWidget(child, x, y)
+                    if draggable then
+                        return draggable
+                    end
+                end
+            end
+        end
+
+        if widget.childUUID then
+            local child = self._widgetsByUUID[widget.childUUID]
+            if child then
+                local draggable = findDraggableWidget(child, x, y)
+                if draggable then
+                    return draggable
+                end
+            end
+        end
+
+        if widget._canBeDragged and widget:isPointInside(x, y) then
+            return widget
+        end
+
+        return nil
     end
-    
+
     for _, widget in ipairs(self._widgets) do
         if widget.enabled and widget:isPointInside(x, y) then
-            if widget._canBeDragged then
-                self._draggedWidget = widget
+            if widget.onMousePressed then
+                widget:onMousePressed(x, y, button)
+            end
+
+            local draggableWidget = findDraggableWidget(widget, x, y)
+            if draggableWidget then
+                self._draggedWidget = draggableWidget
                 self._isDragging = true
             end
         end
@@ -249,7 +292,7 @@ function nurture:mousereleased(x, y, button)
     end
 end
 
-function nurture:mousemoved(x,y,dx,dy)
+function nurture:mousemoved(x, y, dx, dy)
     if self._isDragging and self._draggedWidget then
         ---@diagnostic disable-next-line: undefined-field
         if self._draggedWidget.onDrag then

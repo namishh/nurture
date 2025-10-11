@@ -307,6 +307,26 @@ function HBox:onMouseReleased(x, y, button)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
+function HBox:onDrag(x, y, dx, dy)
+    for _, childUUID in ipairs(self.childrenUUIDs) do
+        local child = self.nurture:getFromUUID(childUUID)
+        if child and child.enabled and child.onDrag then
+            child:onDrag(x, y, dx, dy)
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function HBox:onDragEnd(x, y, button)
+    for _, childUUID in ipairs(self.childrenUUIDs) do
+        local child = self.nurture:getFromUUID(childUUID)
+        if child and child.enabled and child.onDragEnd then
+            child:onDragEnd(x, y, button)
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
 function HBox:updateMouseState(mx, my)
     BaseWidget.updateMouseState(self, mx, my)
     

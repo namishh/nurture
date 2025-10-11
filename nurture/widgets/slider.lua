@@ -30,7 +30,8 @@ function Slider:new(N, options)
 
     self.stepSize = options.stepSize or 0.01
 
-    self.value = options.value or self.minValue
+    -- Initialize value to 0 temporarily, will be set properly below
+    self.value = self.minValue
 
     self.trackColor = options.trackColor or { 0.3, 0.3, 0.3, 1.0 }
     self.trackRounding = options.trackRounding or nil
@@ -69,7 +70,7 @@ function Slider:new(N, options)
         self.knobUUID = knobToSet.uuid
     end
 
-    self:updateKnobPosition()
+    self:setValue(options.value or self.minValue)
 
     return self
 end
@@ -189,7 +190,16 @@ function Slider:updateKnobPosition()
     end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
+function Slider:updateSize()
+    self:updateKnobPosition()
+end
+
 function Slider:onMousePressed(x, y, button)
+    if not self:isPointInside(x, y) then
+        return
+    end
+    
     local knob = self.knobUUID and self.nurture:getFromUUID(self.knobUUID)
 
     if knob and knob:isPointInside(x, y) then

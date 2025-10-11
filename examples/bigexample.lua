@@ -1,5 +1,9 @@
 local flux = require("assets.flux")
 
+----------------
+-- Global State
+----------------
+
 IS_OVERLAY_OPEN = false
 IS_PAUSED_OPEN = false
 IS_PROFILE_OPEN = false
@@ -10,6 +14,10 @@ SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS
 
 PROFILE = "nam"
 
+-------------
+-- Main Load
+-------------
+
 local function load(nurture, N)
     local overlayAlphaState = { value = 0 }
     local profileBoxAlphaState = { value = 0 }
@@ -17,9 +25,13 @@ local function load(nurture, N)
     local shopBoxAlphaState = { value = 0 }
     local optionsBoxAlphaState = { value = 0 }
 
-	local profileBox, pauseMenuBox, shopBox, optionsBox
+    local profileBox, pauseMenuBox, shopBox, optionsBox
 
-    local closeButton =             nurture.Button:new(N, {
+    -----------------
+    -- Close Button
+    -----------------
+
+    local closeButton = nurture.Button:new(N, {
         forcedWidth = 20,
         colors = {
             primaryColor = { 0.1, 0.1, 0.1, 0 },
@@ -28,31 +40,31 @@ local function load(nurture, N)
         },
         zIndex = 100000,
         forcedHeight = 20,
-		onClick = function(self)
+        onClick = function(self)
             if IS_PAUSED_OPEN then
                 IS_PAUSED_OPEN = false
                 flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
                 flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
-			if IS_SHOP_OPEN then
-				IS_SHOP_OPEN = false
-				flux.to(shopBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
-				flux.to(shopBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
-			end
+            if IS_SHOP_OPEN then
+                IS_SHOP_OPEN = false
+                flux.to(shopBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                flux.to(shopBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+            end
             if IS_PROFILE_OPEN then
                 IS_PROFILE_OPEN = false
                 flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
                 flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
-			if IS_OPTIONS_OPEN then
-				IS_OPTIONS_OPEN = false
-				flux.to(optionsBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
-				flux.to(optionsBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
-			end
-            
+            if IS_OPTIONS_OPEN then
+                IS_OPTIONS_OPEN = false
+                flux.to(optionsBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                flux.to(optionsBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+            end
+
             IS_OVERLAY_OPEN = false
             flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
-        
+
             SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS_OPTIONS_OPEN
         end,
         children = {
@@ -64,6 +76,10 @@ local function load(nurture, N)
             })
         }
     })
+
+    ------------
+    -- Overlay
+    ------------
 
     local overlay = nurture.Box:new(N, {
         x = 0,
@@ -84,17 +100,21 @@ local function load(nurture, N)
         self.backgroundColor[4] = overlayAlphaState.value
 
         if overlayAlphaState.value > 0.01 then
-            self:show() 
+            self:show()
         else
             self:hide()
         end
     end)
 
+    ----------------
+    -- Profile Modal
+    ----------------
+
     local profileInput = nurture.Input:new(N, {
         width = 360,
         height = 40,
         rounding = 0,
-        text=PROFILE,
+        text = PROFILE,
         backgroundColor = { 0.2, 0.2, 0.2, 0 },
         borderColor = { 0.5, 0.5, 0.5, 0 },
         textColor = { 1, 1, 1, 0 },
@@ -150,7 +170,7 @@ local function load(nurture, N)
                 }
             })
         }
-    }) 
+    })
 
     profileBox = nurture.Box:new(N, {
         backgroundColor = { 0.04, 0.04, 0.04, 0 },
@@ -161,8 +181,8 @@ local function load(nurture, N)
             color = { 0, 0, 0, 0 }
         },
         padding = 20,
-        x = love.graphics.getWidth()/2 - 150,
-        y = love.graphics.getHeight()/2 - 150,
+        x = love.graphics.getWidth() / 2 - 150,
+        y = love.graphics.getHeight() / 2 - 150,
         zIndex = 1001,
         children = {
             nurture.VBox:new(N, {
@@ -294,7 +314,10 @@ local function load(nurture, N)
         end
     end)
 
-    -- Shop modal
+    -------------
+    -- Shop Modal
+    -------------
+
     local shopTitle = nurture.TextLabel:new(N, "Shop", "bigtitle", {
         color = { 1, 1, 1, 0 },
         shadow = {
@@ -314,8 +337,8 @@ local function load(nurture, N)
             color = { 0, 0, 0, 0 }
         },
         padding = 20,
-        x = love.graphics.getWidth()/2 - 150,
-        y = love.graphics.getHeight()/2 - 150,
+        x = love.graphics.getWidth() / 2 - 150,
+        y = love.graphics.getHeight() / 2 - 150,
         children = {
             nurture.VBox:new(N, {
                 spacing = 10,
@@ -350,7 +373,10 @@ local function load(nurture, N)
         end
     end)
 
-    -- Options modal
+    ----------------
+    -- Options Modal
+    ----------------
+
     local optionsTitle = nurture.TextLabel:new(N, "Options", "bigtitle", {
         color = { 1, 1, 1, 0 },
         shadow = {
@@ -358,6 +384,155 @@ local function load(nurture, N)
             y = 6,
             color = { 0, 0, 0, 0 }
         }
+    })
+
+    -- General tab content
+    local generalTab = nurture.Box:new(N, {
+        padding = 20,
+        backgroundColor = { 0.15, 0.15, 0.2, 0 },
+        rounding = 8,
+        forcedWidth = 260,
+        forcedHeight = 200,
+        child = nurture.VBox:new(N, {
+            spacing = 15,
+            children = {
+                nurture.TextLabel:new(N, "General Settings", "title", {
+                    color = { 1, 1, 1, 0 }
+                }),
+                nurture.TextLabel:new(N, "Language: English", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 }
+                }),
+                nurture.TextLabel:new(N, "Auto-save: Enabled", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 }
+                })
+            }
+        })
+    })
+
+    -- Display tab content
+    local displayTab = nurture.Box:new(N, {
+        padding = 20,
+        backgroundColor = { 0.15, 0.15, 0.2, 0 },
+        rounding = 8,
+        forcedWidth = 260,
+        forcedHeight = 200,
+        child = nurture.VBox:new(N, {
+            spacing = 15,
+            children = {
+                nurture.TextLabel:new(N, "Display Settings", "title", {
+                    color = { 1, 1, 1, 0 }
+                }),
+                nurture.TextLabel:new(N, "Theme: Dark", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 }
+                }),
+                nurture.TextLabel:new(N, "UI Scale: 100%", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 }
+                })
+            }
+        })
+    })
+
+    -- Video tab content
+    local videoTab = nurture.Box:new(N, {
+        padding = 20,
+        backgroundColor = { 0.12, 0.12, 0.12, 0 },
+        rounding = 8,
+        forcedWidth = 260,
+        forcedHeight = 200,
+        halign = "left",
+        valign = "top",
+        child = nurture.VBox:new(N, {
+            spacing = 15,
+            children = {
+                nurture.TextLabel:new(N, "Video Settings", "title", {
+                    color = { 1, 1, 1, 0 }
+                }),
+                nurture.TextLabel:new(N, "FPS Cap: 60", "BodyFont", {
+                    color = { 0.8, 0.8, 0.8, 0 },
+                    classname = "fps_cap_label"
+                }),
+                nurture.Slider:new(N, {
+                    value = 60,
+                    width = 240,
+                    height = 20,
+                    knob = nurture.Shape.Rectangle:new(N, {
+                        width = 25,
+                        height = 25,
+                        color = { 1, 1, 1, 1.0 },
+                    }),
+                    minValue = 30,
+                    maxValue = 120,
+                    stepSize = 1,
+                    onValueChange = function(slider, value)
+                        local label = N:get_all_by_classname("fps_cap_label")[1]
+                        if label then
+                            label:setText("FPS Cap: " .. math.floor(value))
+                        end
+                    end
+                })
+            }
+        })
+    })
+
+    local optionsTabbed = nurture.Tabbed:new(N, {
+        tabs = {
+            general = generalTab,
+            display = displayTab,
+            video = videoTab
+        },
+        tabOrder = { "general", "display", "video" },
+        activeTab = "general"
+    })
+
+    local optionsTabButtons = {}
+    local tabNames = { "General", "Display", "Video" }
+    local tabKeys = { "general", "display", "video" }
+
+    for i, tabKey in ipairs(tabKeys) do
+        local isActive = (tabKey == optionsTabbed:getActiveTabName())
+
+        local tabButton = nurture.Button:new(N, {
+            padding = 10,
+            rounding = 0,
+            colors = {
+                primaryColor = isActive and { 0.3, 0.5, 0.7, 0 } or { 0.12, 0.12, 0.15, 0 },
+                hoveredColor = isActive and { 0.35, 0.55, 0.75, 0 } or { 0.25, 0.25, 0.3, 0 },
+                pressedColor = isActive and { 0.25, 0.45, 0.65, 0 } or { 0.15, 0.15, 0.2, 0 }
+            },
+            onClick = function(btn)
+                optionsTabbed:switch(tabKey)
+
+                for j, tk in ipairs(tabKeys) do
+                    local button = N:get_all_by_classname("options_tab_" .. tk)[1]
+                    if tk == optionsTabbed:getActiveTabName() then
+                        button:setColors({
+                            primaryColor = { 0.3, 0.5, 0.7, optionsBoxAlphaState.value },
+                            hoveredColor = { 0.35, 0.55, 0.75, optionsBoxAlphaState.value },
+                            pressedColor = { 0.25, 0.45, 0.65, optionsBoxAlphaState.value }
+                        })
+                    else
+                        button:setColors({
+                            primaryColor = { 0.2, 0.2, 0.25, optionsBoxAlphaState.value },
+                            hoveredColor = { 0.25, 0.25, 0.3, optionsBoxAlphaState.value },
+                            pressedColor = { 0.15, 0.15, 0.2, optionsBoxAlphaState.value }
+                        })
+                    end
+                end
+            end,
+            child = nurture.TextLabel:new(N, tabNames[i], "BodyFont", {
+                color = { 1, 1, 1, 0 }
+            }),
+            classname = "options_tab_" .. tabKey
+        })
+
+        table.insert(optionsTabButtons, tabButton)
+    end
+
+    local optionsTabBar = nurture.HFracBox:new(N, {
+        forcedHeight = 35,
+        forcedWidth = 300,
+        fractions = { 1 / 3, 1 / 3, 1 / 3 },
+        children = optionsTabButtons
     })
 
     optionsBox = nurture.Box:new(N, {
@@ -369,14 +544,16 @@ local function load(nurture, N)
             color = { 0, 0, 0, 0 }
         },
         padding = 20,
-        x = love.graphics.getWidth()/2 - 150,
-        y = love.graphics.getHeight()/2 - 150,
+        x = love.graphics.getWidth() / 2 - 170,
+        y = love.graphics.getHeight() / 2 - 150,
         zIndex = 1001,
         children = {
             nurture.VBox:new(N, {
-                spacing = 10,
+                spacing = 15,
                 children = {
-                    optionsTitle
+                    optionsTitle,
+                    optionsTabBar,
+                    optionsTabbed
                 }
             })
         }
@@ -399,6 +576,38 @@ local function load(nurture, N)
             end
         end
 
+        -- Update tab buttons
+        for _, tabKey in ipairs(tabKeys) do
+            local button = N:get_all_by_classname("options_tab_" .. tabKey)[1]
+            if button then
+                button.colors.primaryColor[4] = currentAlpha
+                button.colors.hoveredColor[4] = currentAlpha
+                button.colors.pressedColor[4] = currentAlpha
+                button:_updateCurrentColor()
+                local textLabel = button.nurture:getFromUUID(button.childUUID)
+                if textLabel then
+                    textLabel.color[4] = currentAlpha
+                end
+            end
+        end
+
+        -- Update tab content
+        local tabs = { generalTab, displayTab, videoTab }
+        for _, tab in ipairs(tabs) do
+            if tab then
+                tab.backgroundColor[4] = currentAlpha
+                local vbox = tab.nurture:getFromUUID(tab.childUUID)
+                if vbox then
+                    local children = vbox:getChildren()
+                    for _, child in ipairs(children) do
+                        if child.type == "TextLabel" then
+                            child.color[4] = currentAlpha
+                        end
+                    end
+                end
+            end
+        end
+
         if currentAlpha > 0.01 then
             self:show()
         else
@@ -406,16 +615,20 @@ local function load(nurture, N)
         end
     end)
 
+    --------------
+    -- Pause Menu
+    --------------
+
     local pauseMenuLabel = nurture.TextLabel:new(N, "PAUSED", "bigtitle", {
         color = { 1, 1, 1, 0 },
         justify = "center",
         horizAlign = "center",
     })
-    
+
     pauseMenuLabel._scaleX = 1.0
     pauseMenuLabel._scaleY = 1.0
     pauseMenuLabel._rotation = 0
-    
+
     local function createLabelBreathing()
         flux.to(pauseMenuLabel, 1.5, { _scaleX = 1.02, _scaleY = 1.02, _rotation = math.rad(3) })
             :ease("sineinout")
@@ -425,7 +638,7 @@ local function load(nurture, N)
             :ease("sineinout")
             :oncomplete(createLabelBreathing)
     end
-    
+
     createLabelBreathing()
 
     local pauseDots = {}
@@ -557,8 +770,8 @@ local function load(nurture, N)
         rounding = 15,
         forcedWidth = 300,
         padding = 30,
-        x = love.graphics.getWidth()/2 - 150,
-        y = love.graphics.getHeight()/2 - 175,
+        x = love.graphics.getWidth() / 2 - 150,
+        y = love.graphics.getHeight() / 2 - 175,
         zIndex = 1001,
         shadow = {
             x = 0,
@@ -616,6 +829,10 @@ local function load(nurture, N)
     end)
 
     pauseMenuBox:hide()
+
+    ---------------------
+    -- Main Menu Buttons
+    ---------------------
 
     local function create3DButton(text, onClick)
         local button = nurture.Button:new(N, {
@@ -708,6 +925,10 @@ local function load(nurture, N)
         return button
     end
 
+    -------------
+    -- Main Menu
+    -------------
+
     local titleLabel = nurture.TextLabel:new(N, "Nurture", "reallybigtitle", {
         color = { 1, 1, 1, 1 },
         shadow = {
@@ -798,6 +1019,10 @@ local function load(nurture, N)
             button.scaleY = button._scaleY
         end
     end)
+
+    ----------------
+    -- Main Container
+    ----------------
 
     local mainmenubox = nurture.Box:new(N, {
         x = 0,

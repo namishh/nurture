@@ -402,6 +402,30 @@ function Grid:onMouseReleased(x, y, button)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
+function Grid:onDrag(x, y, dx, dy)
+    for row = 1, self.rows do
+        for col = 1, self.columns do
+            local child = self.cells[row][col]
+            if child and child.enabled and child.onDrag then
+                child:onDrag(x, y, dx, dy)
+            end
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
+function Grid:onDragEnd(x, y, button)
+    for row = 1, self.rows do
+        for col = 1, self.columns do
+            local child = self.cells[row][col]
+            if child and child.enabled and child.onDragEnd then
+                child:onDragEnd(x, y, button)
+            end
+        end
+    end
+end
+
+---@diagnostic disable-next-line: duplicate-set-field
 function Grid:updateMouseState(mx, my)
     BaseWidget.updateMouseState(self, mx, my)
     
