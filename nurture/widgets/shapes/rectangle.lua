@@ -23,7 +23,10 @@ function Rectangle:new(N, options)
     self.rx = options.rx or nil -- rounded corners x radius
     self.ry = options.ry or nil -- rounded corners y radius
     self.segments = options.segments or nil -- for rounded corners
-    
+    self.horizAlign = options.horizAlign or nil -- "left", "center", "right"
+    self.vertAlign = options.vertAlign or nil -- "top", "center", "bottom"
+    self.stackHorizAlign = options.stackHorizAlign or nil -- "left", "center", "right"
+    self.stackVertAlign = options.stackVertAlign or nil -- "top", "center", "bottom"
     self.color = options.color or { 1, 1, 1, 1 }
     self.shader = options.shader or nil
 

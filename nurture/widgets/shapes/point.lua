@@ -19,6 +19,11 @@ function Point:new(N, options)
     self.color = options.color or { 1, 1, 1, 1 }
     self.shader = options.shader or nil
 
+    self.horizAlign = options.horizAlign or nil -- "left", "center", "right"
+    self.vertAlign = options.vertAlign or nil -- "top", "center", "bottom"
+    self.stackHorizAlign = options.stackHorizAlign or nil -- "left", "center", "right"
+    self.stackVertAlign = options.stackVertAlign or nil -- "top", "center", "bottom"
+
     if options.zIndex then
         self.zIndex = options.zIndex
     end

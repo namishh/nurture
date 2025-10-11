@@ -15,6 +15,12 @@ function Circle:new(N, options)
 
     self._widgetCannotHaveChildren = true
 
+
+    self.horizAlign = options.horizAlign or nil -- "left", "center", "right"
+    self.vertAlign = options.vertAlign or nil -- "top", "center", "bottom"
+    self.stackHorizAlign = options.stackHorizAlign or nil -- "left", "center", "right"
+    self.stackVertAlign = options.stackVertAlign or nil -- "top", "center", "bottom"
+
     self.radius = options.radius or 50
     self.segments = options.segments or nil
     self.mode = options.mode or "fill" -- "fill" or "line"

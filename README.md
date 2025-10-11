@@ -6,11 +6,12 @@
 <br>
 
 
-![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/nurture.png)
+[![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/nurture.png)](https://github.com/namishh/nurture/blob/main/examples/bigexample.lua)
+
 
 <br>
 
-![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/pausemenuanim.png)
+[![img](https://raw.githubusercontent.com/namishh/nurture/refs/heads/main/examples/screenshots/shop.png)](https://github.com/namishh/nurture/blob/main/examples/inputtest.lua)
 
 Take a look at the [examples](https://github.com/namishh/nurture/tree/main/examples) directory for some working examples and screenshots.
 

@@ -15,6 +15,12 @@ function Polygon:new(N, options)
 
     self._widgetCannotHaveChildren = true
 
+
+    self.horizAlign = options.horizAlign or nil -- "left", "center", "right"
+    self.vertAlign = options.vertAlign or nil -- "top", "center", "bottom"
+    self.stackHorizAlign = options.stackHorizAlign or nil -- "left", "center", "right"
+    self.stackVertAlign = options.stackVertAlign or nil -- "top", "center", "bottom"
+
     self.vertices = options.vertices or { 0, 0, 100, 0, 50, 100 }
     self.mode = options.mode or "fill" -- "fill" or "line"
     self.lineWidth = options.lineWidth or 1

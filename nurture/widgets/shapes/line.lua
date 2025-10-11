@@ -13,6 +13,11 @@ function Line:new(N, options)
     self.x = options.x or 0
     self.y = options.y or 0
 
+    self.horizAlign = options.horizAlign or nil -- "left", "center", "right"
+    self.vertAlign = options.vertAlign or nil -- "top", "center", "bottom"
+    self.stackHorizAlign = options.stackHorizAlign or nil -- "left", "center", "right"
+    self.stackVertAlign = options.stackVertAlign or nil -- "top", "center", "bottom"
+
     self._widgetCannotHaveChildren = true
 
     -- Points can be provided as a flat array: {x1, y1, x2, y2, ...}

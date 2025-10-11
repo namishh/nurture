@@ -14,6 +14,42 @@ SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS
 
 PROFILE = "nam"
 MONEY = 30
+
+SHOP_ITEMS = {
+    {
+        name = "Big Rock",
+        price = 4
+    },
+    {
+        name = "Chocolate",
+        price = 2,
+    },
+    {
+        name = "Chips",
+        price = 1,
+    },
+    {
+        name = "Toilet Paper",
+        price = 1,
+    },
+    {
+        name = "Water",
+        price = 3,
+    },
+    {
+        name = "Battery",
+        price = 4,
+    },
+    {
+        name = "Phone",
+        price = 5,
+    },
+    {
+        name = "TV",
+        price = 2,
+    }
+}
+
 -------------
 -- Main Load
 -------------
@@ -329,20 +365,23 @@ local function load(nurture, N)
             color = { 0, 0, 0, 0 }
         },
         forcedWidth = 760,
+        forcedHeight = 320,
         padding = 20,
         x = love.graphics.getWidth() / 2 - 380,
-        y = love.graphics.getHeight() / 2 - 80,
+        y = love.graphics.getHeight() / 2 - 280,
         children = {
             nurture.VBox:new(N, {
                 spacing = 10,
-                children = {
-                    nurture.HBox:new(N, {
+                children = (function()
+                    local vboxChildren = {}
+
+                    table.insert(vboxChildren, nurture.HBox:new(N, {
                         forcedWidth = 720,
                         spacing = 10,
                         justify = "space-between",
                         children = {
                             nurture.HBox:new(N, {
-                                classname="shop_title",
+                                classname = "shop_title",
                                 spacing = 5,
                                 children = {
                                     nurture.TextLabel:new(N, "S", "biggertitle", {
@@ -381,7 +420,7 @@ local function load(nurture, N)
                             }),
 
                             nurture.TextLabel:new(N, "$" .. tostring(MONEY), "biggertitle", {
-                                classname="shop_money",
+                                classname = "shop_money",
                                 color = { 1, 0.8, 0.2, 0 },
                                 shadow = {
                                     x = 3,
@@ -391,9 +430,123 @@ local function load(nurture, N)
                                 vertAlign = "center"
                             })
                         }
-                    })
-                },
-                
+                    }))
+
+                    local shopGridItems = {}
+                    for i, item in ipairs(SHOP_ITEMS) do
+                        local r = math.random(0, 1)
+                        local g = math.random(0, 1)
+                        local b = math.random(0, 1)
+                        local width = math.random(50, 70)
+                        local shopItem = nurture.Box:new(N, {
+                            forcedWidth = 160,
+                            forcedHeight = 160,
+                            classname = "shop_item" .. tostring(i),
+                            padding = 5,
+                            backgroundColor = { 0.12, 0.12, 0.12, 0 },
+                            children = {
+                                nurture.Stack:new(N, {
+                                    children = {
+                                        nurture.TextLabel:new(N, "$" .. tostring(item.price), "bigtitle", {
+                                            color = { 1, 1, 1, 1 },
+                                            stackVertAlign = "top",
+                                            stackHorizAlign = "right",
+                                        }),
+                                        nurture.Box:new(N, {
+                                            rounding = 8,
+                                            padding = 15,
+                                            forcedWidth = 160,
+                                            forcedHeight = 160,
+                                            halign = "center",
+                                            valign = "center",
+                                            child = nurture.VBox:new(N, {
+                                                spacing = 10,
+                                                forcedWidth = 130,
+                                                justify = "center",
+                                                children = {
+                                                    nurture.Shape.Rectangle:new(N, {
+                                                        width = width,
+                                                        height = 100,
+                                                        horizAlign = "center",
+                                                        color = { r, g, b, 1 },
+                                                    }),
+                                                    nurture.TextLabel:new(N, item.name, "title", {
+                                                        color = { 1, 1, 1, 1 },
+                                                        horizAlign = "center",
+                                                    }),
+
+                                                            (function()
+                                                                local buyButton = nurture.Button:new(N, {
+                                                                    padding = 5,
+                                                                    vertAlign="stretch",
+                                                                    onClick = function(btn)
+                                                                        if not IS_SHOP_OPEN then
+                                                                            return
+                                                                        end
+                                                                        
+                                                                        if MONEY >= item.price then
+                                                                            MONEY = MONEY - item.price
+                                                                            
+                                                                            local moneyLabel = N:get_all_by_classname("shop_money")[1]
+                                                                            if moneyLabel then
+                                                                                moneyLabel:setText("$" .. tostring(MONEY))
+                                                                            end
+                                                                            
+                                                                            local shopItem = N:get_all_by_classname("shop_item" .. tostring(i))[1]
+                                                                            if shopItem then
+                                                                                shopItem:hide()
+                                                                            end
+                                                                            
+                                                                            print("Purchased " .. item.name .. " for $" .. item.price)
+                                                                        else
+                                                                            print("Not enough money to buy " .. item.name)
+                                                                        end
+                                                                    end,
+                                                                    children = {
+                                                                        nurture.TextLabel:new(N, "Buy", "title", {
+                                                                            color = { 1, 1, 1, 1 },
+                                                                        }),
+                                                                    }
+                                                                })
+                                                                
+                                                                buyButton._scaleX = 1.0
+                                                                buyButton._scaleY = 1.0
+                                                                
+                                                                buyButton:setOnMouseOver(function(self, x, y)
+                                                                    if not IS_SHOP_OPEN then
+                                                                        return
+                                                                    end
+                                                                    flux.to(self, 0.15, { _scaleX = 1.05, _scaleY = 1.05 }):ease("quadout")
+                                                                end)
+                                                                
+                                                                buyButton:setOnMouseLeave(function(self, x, y)
+                                                                    flux.to(self, 0.15, { _scaleX = 1.0, _scaleY = 1.0 }):ease("quadout")
+                                                                end)
+                                                                
+                                                                return buyButton
+                                                            end)()
+
+
+                                                }
+                                            })
+                                        }),
+                                    }
+                                })
+                            }
+                        })
+                        table.insert(shopGridItems, shopItem)
+                    end
+
+                    table.insert(vboxChildren, nurture.Grid:new(N, {
+                        rows = 2,
+                        columns = 4,
+                        spacing = 10,
+                        classname = "shop_grid",
+                        children = shopGridItems
+                    }))
+
+                    return vboxChildren
+                end)()
             })
         }
     })
@@ -412,13 +565,14 @@ local function load(nurture, N)
             letter._rotation = 0
 
             -- Random variations for each letter
-            local duration = math.random(15, 25) / 10  -- 1.5 to 2.5 seconds
-            local rotationRange = math.random(2, 5)    -- 2 to 5 degrees
-            local scaleAmount = 1.0 + math.random(3, 7) / 100  -- 1.03 to 1.07
-            local delay = (i - 1) * 0.1  -- Stagger the start slightly
+            local duration = math.random(15, 25) / 10         -- 1.5 to 2.5 seconds
+            local rotationRange = math.random(2, 5)           -- 2 to 5 degrees
+            local scaleAmount = 1.0 + math.random(3, 7) / 100 -- 1.03 to 1.07
+            local delay = (i - 1) * 0.1                       -- Stagger the start slightly
 
             local function createLetterBreathing()
-                flux.to(letter, duration, { _scaleX = scaleAmount, _scaleY = scaleAmount, _rotation = math.rad(rotationRange) })
+                flux.to(letter, duration,
+                    { _scaleX = scaleAmount, _scaleY = scaleAmount, _rotation = math.rad(rotationRange) })
                     :ease("sineinout")
                     :delay(delay)
                     :after(letter, duration, { _scaleX = 1.0, _scaleY = 1.0, _rotation = math.rad(-rotationRange) })
@@ -429,6 +583,79 @@ local function load(nurture, N)
             end
 
             createLetterBreathing()
+        end
+    end
+
+    for i = 1, #SHOP_ITEMS do
+        local shopItem = N:get_all_by_classname("shop_item" .. tostring(i))[1]
+        if shopItem then
+            shopItem._scaleX = 1.0
+            shopItem._scaleY = 1.0
+            shopItem._rotation = 0
+
+            local cardDuration = math.random(20, 35) / 10            -- 2.0 to 3.5 seconds
+            local cardRotationRange = math.random(1, 3)              -- 1 to 3 degrees
+            local cardScaleAmount = 1.0 + math.random(1, 4) / 100    -- 1.01 to 1.04
+            local cardDelay = math.random(0, 5) / 10                 -- 0 to 0.5 seconds
+
+            local function createCardBreathing()
+                flux.to(shopItem, cardDuration,
+                    { _scaleX = cardScaleAmount, _scaleY = cardScaleAmount, _rotation = math.rad(cardRotationRange) })
+                    :ease("sineinout")
+                    :delay(cardDelay)
+                    :after(shopItem, cardDuration, 
+                        { _scaleX = 1.0, _scaleY = 1.0, _rotation = math.rad(-cardRotationRange) })
+                    :ease("sineinout")
+                    :after(shopItem, cardDuration, 
+                        { _scaleX = cardScaleAmount, _scaleY = cardScaleAmount, _rotation = 0 })
+                    :ease("sineinout")
+                    :oncomplete(createCardBreathing)
+            end
+
+            createCardBreathing()
+
+            local stack = shopItem.nurture:getFromUUID(shopItem.childUUID)
+            if stack and stack.type == "Stack" then
+                local stackChildren = stack:getChildren()
+                for _, stackChild in ipairs(stackChildren) do
+                    if stackChild.type == "Box" then
+                        local vbox = stackChild.nurture:getFromUUID(stackChild.childUUID)
+                        if vbox and vbox.type == "VBox" then
+                            local vboxChildren = vbox:getChildren()
+                            for _, vboxChild in ipairs(vboxChildren) do
+                                if vboxChild.type == "Shape.Rectangle" then
+                                    vboxChild._scaleX = 1.0
+                                    vboxChild._scaleY = 1.0
+                                    vboxChild._rotation = 0
+
+                                    local rectDuration = math.random(15, 30) / 10       -- 1.5 to 3.0 seconds
+                                    local rectRotationRange = math.random(2, 6)         -- 2 to 6 degrees
+                                    local rectScaleAmount = 1.0 + math.random(2, 6) / 100  -- 1.02 to 1.06
+                                    local rectDelay = math.random(0, 8) / 10            -- 0 to 0.8 seconds
+
+                                    local function createRectBreathing()
+                                        flux.to(vboxChild, rectDuration,
+                                            { _scaleX = rectScaleAmount, _scaleY = rectScaleAmount, _rotation = math.rad(rectRotationRange) })
+                                            :ease("sineinout")
+                                            :delay(rectDelay)
+                                            :after(vboxChild, rectDuration,
+                                                { _scaleX = 1.0, _scaleY = 1.0, _rotation = math.rad(-rectRotationRange) })
+                                            :ease("sineinout")
+                                            :after(vboxChild, rectDuration,
+                                                { _scaleX = rectScaleAmount, _scaleY = rectScaleAmount, _rotation = 0 })
+                                            :ease("sineinout")
+                                            :oncomplete(createRectBreathing)
+                                    end
+
+                                    createRectBreathing()
+                                    break
+                                end
+                            end
+                        end
+                        break
+                    end
+                end
+            end
         end
     end
 
@@ -463,6 +690,65 @@ local function load(nurture, N)
                             hboxChild.color[4] = currentAlpha
                             if hboxChild.shadow and hboxChild.shadow.color then
                                 hboxChild.shadow.color[4] = currentAlpha * 0.7
+                            end
+                        end
+                    end
+                elseif child.type == "Grid" and child.classname == "shop_grid" then
+                    -- Update grid items alpha and animations
+                    local gridChildren = child:getChildren()
+                    for _, gridItem in ipairs(gridChildren) do
+                        if gridItem.type == "Box" then
+                            gridItem.backgroundColor[4] = currentAlpha
+                            
+                            -- Apply card animations
+                            if gridItem._scaleX then
+                                gridItem.scaleX = gridItem._scaleX
+                                gridItem.scaleY = gridItem._scaleY
+                                gridItem.rotation = gridItem._rotation
+                            end
+                            
+                            -- Update stack children (price label and inner box)
+                            local stack = gridItem.nurture:getFromUUID(gridItem.childUUID)
+                            if stack and stack.type == "Stack" then
+                                local stackChildren = stack:getChildren()
+                                for _, stackChild in ipairs(stackChildren) do
+                                    if stackChild.type == "TextLabel" then
+                                        stackChild.color[4] = currentAlpha
+                                    elseif stackChild.type == "Box" then
+                                        local vbox = stackChild.nurture:getFromUUID(stackChild.childUUID)
+                                        if vbox and vbox.type == "VBox" then
+                                            local vboxChildren = vbox:getChildren()
+                                            for _, vboxChild in ipairs(vboxChildren) do
+                                                if vboxChild.type == "Shape.Rectangle" then
+                                                    -- Apply rectangle animations
+                                                    if vboxChild._scaleX then
+                                                        vboxChild.scaleX = vboxChild._scaleX
+                                                        vboxChild.scaleY = vboxChild._scaleY
+                                                        vboxChild.rotation = vboxChild._rotation
+                                                    end
+                                                elseif vboxChild.type == "TextLabel" then
+                                                    vboxChild.color[4] = currentAlpha
+                                                elseif vboxChild.type == "Button" then
+                                                    vboxChild.colors.primaryColor[4] = currentAlpha
+                                                    vboxChild.colors.hoveredColor[4] = currentAlpha
+                                                    vboxChild.colors.pressedColor[4] = currentAlpha
+                                                    vboxChild:_updateCurrentColor()
+                                                    
+                                                    -- Apply button hover scale
+                                                    if vboxChild._scaleX then
+                                                        vboxChild.scaleX = vboxChild._scaleX
+                                                        vboxChild.scaleY = vboxChild._scaleY
+                                                    end
+                                                    
+                                                    local btnLabel = vboxChild.nurture:getFromUUID(vboxChild.childUUID)
+                                                    if btnLabel and btnLabel.type == "TextLabel" then
+                                                        btnLabel.color[4] = currentAlpha
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
                             end
                         end
                     end
