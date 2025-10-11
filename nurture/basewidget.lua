@@ -278,6 +278,18 @@ function BaseWidget:getChildren()
     return children
 end
 
+
+function BaseWidget:updateSizeWithParents()
+    if self.updateSize then
+        self:updateSize()
+    end
+    
+    local parent = self:getParent()
+    if parent then
+        parent:updateSizeWithParents()
+    end
+end
+
 function BaseWidget:get_all_by_classname(classname)
     local result = {}
     local queue = {}

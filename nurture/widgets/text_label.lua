@@ -172,12 +172,12 @@ end
 
 function TextLabel:setText(text)
     self.text = text
-    self:updateSize()
+    self:updateSizeWithParents()
 end
 
 function TextLabel:setWrapping(enabled)
     self.wrapping = enabled
-    self:updateSize()
+    self:updateSizeWithParents()
 end
 
 function TextLabel:setWrapAlign(align)

@@ -266,18 +266,36 @@ function nurture:mousemoved(x,y,dx,dy)
 end
 
 function nurture:keypressed(key, scancode, isrepeat)
-    for _, widget in ipairs(self._widgets) do
+    local function dispatchToWidget(widget)
         if widget.enabled and widget.onKeyPress then
             widget:onKeyPress(key, scancode, isrepeat)
         end
+        for _, childUUID in ipairs(widget.childrenUUIDs or {}) do
+            local child = self._widgetsByUUID[childUUID]
+            if child then
+                dispatchToWidget(child)
+            end
+        end
+    end
+    for _, widget in ipairs(self._widgets) do
+        dispatchToWidget(widget)
     end
 end
 
 function nurture:textinput(text)
-    for _, widget in ipairs(self._widgets) do
+    local function dispatchToWidget(widget)
         if widget.enabled and widget.onTextInput then
             widget:onTextInput(text)
         end
+        for _, childUUID in ipairs(widget.childrenUUIDs or {}) do
+            local child = self._widgetsByUUID[childUUID]
+            if child then
+                dispatchToWidget(child)
+            end
+        end
+    end
+    for _, widget in ipairs(self._widgets) do
+        dispatchToWidget(widget)
     end
 end
 
