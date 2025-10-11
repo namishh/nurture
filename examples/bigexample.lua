@@ -11,13 +11,13 @@ SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS
 PROFILE = "nam"
 
 local function load(nurture, N)
-    -- Alpha states for animations
     local overlayAlphaState = { value = 0 }
     local profileBoxAlphaState = { value = 0 }
     local pauseAlphaState = { value = 0 }
-    
-    -- Forward declarations
-    local profileBox, pauseMenuBox
+    local shopBoxAlphaState = { value = 0 }
+    local optionsBoxAlphaState = { value = 0 }
+
+	local profileBox, pauseMenuBox, shopBox, optionsBox
 
     local closeButton =             nurture.Button:new(N, {
         forcedWidth = 20,
@@ -28,23 +28,27 @@ local function load(nurture, N)
         },
         zIndex = 100000,
         forcedHeight = 20,
-        onClick = function(self)
+		onClick = function(self)
             if IS_PAUSED_OPEN then
                 IS_PAUSED_OPEN = false
                 flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
                 flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
-            if IS_SHOP_OPEN then
-                IS_SHOP_OPEN = false
-            end
+			if IS_SHOP_OPEN then
+				IS_SHOP_OPEN = false
+				flux.to(shopBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+				flux.to(shopBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+			end
             if IS_PROFILE_OPEN then
                 IS_PROFILE_OPEN = false
                 flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
                 flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
-            if IS_OPTIONS_OPEN then
-                IS_OPTIONS_OPEN = false
-            end
+			if IS_OPTIONS_OPEN then
+				IS_OPTIONS_OPEN = false
+				flux.to(optionsBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+				flux.to(optionsBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+			end
             
             IS_OVERLAY_OPEN = false
             flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
@@ -79,9 +83,9 @@ local function load(nurture, N)
     overlay:setUpdateCallback(function(self, dt)
         self.backgroundColor[4] = overlayAlphaState.value
 
-        if IS_OVERLAY_OPEN then
+        if overlayAlphaState.value > 0.01 then
             self:show() 
-        elseif overlayAlphaState.value <= 0.01 then
+        else
             self:hide()
         end
     end)
@@ -189,14 +193,16 @@ local function load(nurture, N)
                                     })
                                 },
                                 onClick = function(self)
-                                    PROFILE = profileInput.text
-                                    local label = N:get_all_by_classname("profile-label")[1]
-                                    label:setText(PROFILE)
-                                    IS_PROFILE_OPEN = false
-                                    IS_OVERLAY_OPEN = false
-                                    flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
-                                    flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
-                                    flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    if IS_PROFILE_OPEN then
+                                        PROFILE = profileInput.text
+                                        local label = N:get_all_by_classname("profile-label")[1]
+                                        label:setText(PROFILE)
+                                        IS_PROFILE_OPEN = false
+                                        IS_OVERLAY_OPEN = false
+                                        flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                        flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+                                        flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    end
                                 end
                             }),
                             nurture.Button:new(N, {
@@ -207,11 +213,13 @@ local function load(nurture, N)
                                     pressedColor = { 1, 0.3, 0.3, 0 }
                                 },
                                 onClick = function(self)
-                                    IS_PROFILE_OPEN = false
-                                    IS_OVERLAY_OPEN = false
-                                    flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
-                                    flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
-                                    flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    if IS_PROFILE_OPEN then
+                                        IS_PROFILE_OPEN = false
+                                        IS_OVERLAY_OPEN = false
+                                        flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                        flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+                                        flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    end
                                 end,
                                 children = {
                                     nurture.TextLabel:new(N, "Cancel", "title", {
@@ -279,9 +287,121 @@ local function load(nurture, N)
             end
         end
 
-        if IS_PROFILE_OPEN then
+        if profileBoxAlphaState.value > 0.01 then
             self:show()
-        elseif profileBoxAlphaState.value <= 0.01 then
+        else
+            self:hide()
+        end
+    end)
+
+    -- Shop modal
+    local shopTitle = nurture.TextLabel:new(N, "Shop", "bigtitle", {
+        color = { 1, 1, 1, 0 },
+        shadow = {
+            x = 6,
+            y = 6,
+            color = { 0, 0, 0, 0 }
+        }
+    })
+
+    shopBox = nurture.Box:new(N, {
+        backgroundColor = { 0.04, 0.04, 0.04, 0 },
+        rounding = 10,
+        zIndex = 10000,
+        shadow = {
+            x = 7,
+            y = 7,
+            color = { 0, 0, 0, 0 }
+        },
+        padding = 20,
+        x = love.graphics.getWidth()/2 - 150,
+        y = love.graphics.getHeight()/2 - 150,
+        children = {
+            nurture.VBox:new(N, {
+                spacing = 10,
+                children = {
+                    shopTitle
+                }
+            })
+        }
+    })
+
+    shopBox._scaleX = 0.8
+    shopBox._scaleY = 0.8
+
+    shopBox:setUpdateCallback(function(self, dt)
+        local currentAlpha = shopBoxAlphaState.value
+        self.backgroundColor[4] = currentAlpha
+        self.shadow.color[4] = currentAlpha
+        self.scaleX = self._scaleX
+        self.scaleY = self._scaleY
+
+        if shopTitle then
+            shopTitle.color[4] = currentAlpha
+            if shopTitle.shadow and shopTitle.shadow.color then
+                shopTitle.shadow.color[4] = currentAlpha * 0.7
+            end
+        end
+
+        if currentAlpha > 0.01 then
+            self:show()
+        else
+            self:hide()
+        end
+    end)
+
+    -- Options modal
+    local optionsTitle = nurture.TextLabel:new(N, "Options", "bigtitle", {
+        color = { 1, 1, 1, 0 },
+        shadow = {
+            x = 6,
+            y = 6,
+            color = { 0, 0, 0, 0 }
+        }
+    })
+
+    optionsBox = nurture.Box:new(N, {
+        backgroundColor = { 0.04, 0.04, 0.04, 0 },
+        rounding = 10,
+        shadow = {
+            x = 7,
+            y = 7,
+            color = { 0, 0, 0, 0 }
+        },
+        padding = 20,
+        x = love.graphics.getWidth()/2 - 150,
+        y = love.graphics.getHeight()/2 - 150,
+        zIndex = 1001,
+        children = {
+            nurture.VBox:new(N, {
+                spacing = 10,
+                children = {
+                    optionsTitle
+                }
+            })
+        }
+    })
+
+    optionsBox._scaleX = 0.8
+    optionsBox._scaleY = 0.8
+
+    optionsBox:setUpdateCallback(function(self, dt)
+        local currentAlpha = optionsBoxAlphaState.value
+        self.backgroundColor[4] = currentAlpha
+        self.shadow.color[4] = currentAlpha
+        self.scaleX = self._scaleX
+        self.scaleY = self._scaleY
+
+        if optionsTitle then
+            optionsTitle.color[4] = currentAlpha
+            if optionsTitle.shadow and optionsTitle.shadow.color then
+                optionsTitle.shadow.color[4] = currentAlpha * 0.7
+            end
+        end
+
+        if currentAlpha > 0.01 then
+            self:show()
+        else
             self:hide()
         end
     end)
@@ -344,8 +464,6 @@ local function load(nurture, N)
         children = pauseDots
     })
 
-    local pauseAlphaState = { value = 0 }
-
     local function createPauseMenuButton(text, primaryColor, hoveredColor, pressedColor, isDisabled)
         local button = nurture.Button:new(N, {
             padding = 12,
@@ -383,12 +501,14 @@ local function load(nurture, N)
         { 0.2, 0.6, 0.3, 0 })
 
     resumeButton:setOnClick(function(btn)
-        IS_PAUSED_OPEN = false
-        IS_OVERLAY_OPEN = false
-        SHOULD_DISABLE_BUTTONS = false
-        flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
-        flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
-        flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+        if IS_PAUSED_OPEN then
+            IS_PAUSED_OPEN = false
+            IS_OVERLAY_OPEN = false
+            SHOULD_DISABLE_BUTTONS = false
+            flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
+            flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+            flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
+        end
     end)
 
     local achievementsButton = createPauseMenuButton("Achievements",
@@ -403,7 +523,9 @@ local function load(nurture, N)
         { 0.7, 0.2, 0.2, 0 })
 
     quitButton:setOnClick(function(btn)
-        love.event.quit()
+        if IS_PAUSED_OPEN then
+            love.event.quit()
+        end
     end)
 
     local pauseMenuButtons = { resumeButton, achievementsButton, quitButton }
@@ -486,9 +608,9 @@ local function load(nurture, N)
             end
         end
 
-        if IS_PAUSED_OPEN then
+        if pauseAlphaState.value > 0.01 then
             self:show()
-        elseif pauseAlphaState.value <= 0.01 then
+        else
             self:hide()
         end
     end)
@@ -630,13 +752,15 @@ local function load(nurture, N)
                         IS_SHOP_OPEN = true
                         IS_OVERLAY_OPEN = true
                         flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
-                        print("Shop button clicked!")
+                        flux.to(shopBoxAlphaState, 0.3, { value = 1.0 }):ease("quadout")
+                        flux.to(shopBox, 0.3, { _scaleX = 1.0, _scaleY = 1.0 }):ease("backout")
                     end),
                     create3DButton("Options", function(btn)
                         IS_OPTIONS_OPEN = true
                         IS_OVERLAY_OPEN = true
                         flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
-                        print("Options button clicked!")
+                        flux.to(optionsBoxAlphaState, 0.3, { value = 1.0 }):ease("quadout")
+                        flux.to(optionsBox, 0.3, { _scaleX = 1.0, _scaleY = 1.0 }):ease("backout")
                     end),
                     create3DButton("Quit", function(btn)
                         print("Quit button clicked!")
