@@ -1,12 +1,16 @@
 local nurture = require("nurture")
+local moonshine = require("assets.moonshine")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "inputtest"
+local CURRENT_EXAMPLE = "bigexample"
 local currentExampleModule = nil
 
+
+local postChain 
+
 function love.load()
-    love.window.setMode(900, 650)
+    love.window.setMode(1280, 720)
     love.window.setTitle("nurture - " .. (CURRENT_EXAMPLE or "blank"))
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setBackgroundColor(0.15, 0.15, 0.2)
@@ -14,8 +18,35 @@ function love.load()
 
     N:registerFont('assets/BoldPixels.ttf', 'title', 24, true)
     N:registerFont('assets/BoldPixels.ttf', 'bigtitle', 32, false)
+    N:registerFont('assets/BoldPixels.ttf', 'reallybigtitle', 120, false)
     N:registerFont('assets/BoldPixels.ttf', 'subtitle', 18, false)
     N:registerFont('assets/BoldPixels.ttf', 'BodyFont', 14, false)
+
+    postChain = moonshine(moonshine.effects.scanlines)
+        .chain(moonshine.effects.crt)
+        .chain(moonshine.effects.vignette)
+        .chain(moonshine.effects.glow)
+    postChain.parameters = {
+        crt = {
+            distortionFactor = { 1, 1.0125 },
+            scaleFactor = 0.98,
+            feather = 0,
+        },
+        scanlines = {
+            opacity = 0.35,
+            phase = 1
+        },
+        glow = {
+            strength = 2,
+            min_luma = 0.8
+        },
+        vignette = {
+            opacity = 0,
+            radius = 0.9,
+            softness = 0.5,
+            color = { 0, 0, 0 }
+        }
+    }
 
     if CURRENT_EXAMPLE then
         currentExampleModule = require("examples." .. CURRENT_EXAMPLE)
@@ -32,16 +63,22 @@ end
 
 function love.update(dt)
     N:update(dt)
+    
+    if currentExampleModule and currentExampleModule.update then
+        currentExampleModule.update(dt)
+    end
 end
 
 function love.draw()
+    postChain(function()
     N:draw()
 
     love.graphics.setColor(1, 1, 1, 0.5)
     local currentExample = CURRENT_EXAMPLE or "blank"
     love.graphics.print("Example: " .. currentExample, 10, love.graphics.getHeight() - 40)
-    love.graphics.print("Press ESC to quit", 10, love.graphics.getHeight() - 20)
+    love.graphics.print("Press  to quit", 10, love.graphics.getHeight() - 20)
     love.graphics.setColor(1, 1, 1, 1)
+    end)
 end
 
 function love.mousepressed(x, y, button)
@@ -59,7 +96,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
     N:keypressed(key, scancode, isrepeat)
 
-    if key == "escape" then
+    if key == "0" then
         love.event.quit()
     end
 

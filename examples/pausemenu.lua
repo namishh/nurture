@@ -151,7 +151,7 @@ local function load(nurture, N)
     pauseMenu:hide()
     isPaused = false
 
-    nurture.TextLabel:new(N, "Press 0 to toggle pause menu", "BodyFont", {
+    nurture.TextLabel:new(N, "Press escape to toggle pause menu", "BodyFont", {
         color = { 1, 1, 1, 1 },
     })
 end
@@ -170,7 +170,7 @@ local function togglePause()
 end
 
 local function keypressed(key)
-    if key == "0" then
+    if key == "escape" then
         togglePause()
     end
 end
