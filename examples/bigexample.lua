@@ -11,6 +11,13 @@ SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS
 PROFILE = "nam"
 
 local function load(nurture, N)
+    -- Alpha states for animations
+    local overlayAlphaState = { value = 0 }
+    local profileBoxAlphaState = { value = 0 }
+    local pauseAlphaState = { value = 0 }
+    
+    -- Forward declarations
+    local profileBox, pauseMenuBox
 
     local closeButton =             nurture.Button:new(N, {
         forcedWidth = 20,
@@ -22,19 +29,25 @@ local function load(nurture, N)
         zIndex = 100000,
         forcedHeight = 20,
         onClick = function(self)
-            IS_OVERLAY_OPEN = false 
             if IS_PAUSED_OPEN then
                 IS_PAUSED_OPEN = false
+                flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
+                flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
             if IS_SHOP_OPEN then
                 IS_SHOP_OPEN = false
             end
             if IS_PROFILE_OPEN then
                 IS_PROFILE_OPEN = false
+                flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
             end
             if IS_OPTIONS_OPEN then
                 IS_OPTIONS_OPEN = false
             end
+            
+            IS_OVERLAY_OPEN = false
+            flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
         
             SHOULD_DISABLE_BUTTONS = IS_PAUSED_OPEN or IS_PROFILE_OPEN or IS_SHOP_OPEN or IS_OPTIONS_OPEN
         end,
@@ -47,8 +60,6 @@ local function load(nurture, N)
             })
         }
     })
-
-    local overlayAlphaState = { value = 0 }
 
     local overlay = nurture.Box:new(N, {
         x = 0,
@@ -66,17 +77,11 @@ local function load(nurture, N)
     })
 
     overlay:setUpdateCallback(function(self, dt)
-        if IS_OVERLAY_OPEN and overlayAlphaState.value < 0.7 then
-            overlayAlphaState.value = math.min(0.7, overlayAlphaState.value + dt * 3)
-        elseif not IS_OVERLAY_OPEN and overlayAlphaState.value > 0 then
-            overlayAlphaState.value = math.max(0, overlayAlphaState.value - dt * 3)
-        end
-
         self.backgroundColor[4] = overlayAlphaState.value
 
         if IS_OVERLAY_OPEN then
             self:show() 
-        else
+        elseif overlayAlphaState.value <= 0.01 then
             self:hide()
         end
     end)
@@ -119,6 +124,9 @@ local function load(nurture, N)
 
                     IS_PROFILE_OPEN = true
                     IS_OVERLAY_OPEN = true
+                    flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
+                    flux.to(profileBoxAlphaState, 0.3, { value = 1.0 }):ease("quadout")
+                    flux.to(profileBox, 0.3, { _scaleX = 1.0, _scaleY = 1.0 }):ease("backout")
                 end,
                 shadow = {
                     x = 6,
@@ -140,9 +148,7 @@ local function load(nurture, N)
         }
     }) 
 
-    local profileBoxAlphaState = { value = 0 }
-
-    local profileBox = nurture.Box:new(N, {
+    profileBox = nurture.Box:new(N, {
         backgroundColor = { 0.04, 0.04, 0.04, 0 },
         rounding = 10,
         shadow = {
@@ -188,6 +194,9 @@ local function load(nurture, N)
                                     label:setText(PROFILE)
                                     IS_PROFILE_OPEN = false
                                     IS_OVERLAY_OPEN = false
+                                    flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+                                    flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
                                 end
                             }),
                             nurture.Button:new(N, {
@@ -200,6 +209,9 @@ local function load(nurture, N)
                                 onClick = function(self)
                                     IS_PROFILE_OPEN = false
                                     IS_OVERLAY_OPEN = false
+                                    flux.to(profileBoxAlphaState, 0.2, { value = 0 }):ease("quadout")
+                                    flux.to(profileBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+                                    flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
                                 end,
                                 children = {
                                     nurture.TextLabel:new(N, "Cancel", "title", {
@@ -216,21 +228,8 @@ local function load(nurture, N)
 
     profileBox._scaleX = 0.8
     profileBox._scaleY = 0.8
-    profileBox._targetScale = 1.0
 
     profileBox:setUpdateCallback(function(self, dt)
-        if IS_PROFILE_OPEN and profileBoxAlphaState.value < 1.0 then
-            profileBoxAlphaState.value = math.min(1.0, profileBoxAlphaState.value + dt * 5)
-            self._targetScale = 1.0
-        elseif not IS_PROFILE_OPEN and profileBoxAlphaState.value > 0 then
-            profileBoxAlphaState.value = math.max(0, profileBoxAlphaState.value - dt * 5)
-            self._targetScale = 0.8
-        end
-
-        -- Smooth scale animation
-        self._scaleX = self._scaleX + (self._targetScale - self._scaleX) * dt * 10
-        self._scaleY = self._scaleY + (self._targetScale - self._scaleY) * dt * 10
-
         local currentAlpha = profileBoxAlphaState.value
         self.backgroundColor[4] = currentAlpha
         self.shadow.color[4] = currentAlpha
@@ -247,7 +246,6 @@ local function load(nurture, N)
                         child.shadow.color[4] = currentAlpha * 0.7
                     end
                 elseif child.type == "Input" then
-                    -- Animate input field
                     if child.backgroundColor then
                         child.backgroundColor[4] = currentAlpha
                     end
@@ -283,7 +281,7 @@ local function load(nurture, N)
 
         if IS_PROFILE_OPEN then
             self:show()
-        else
+        elseif profileBoxAlphaState.value <= 0.01 then
             self:hide()
         end
     end)
@@ -388,8 +386,9 @@ local function load(nurture, N)
         IS_PAUSED_OPEN = false
         IS_OVERLAY_OPEN = false
         SHOULD_DISABLE_BUTTONS = false
-        flux.to(pauseAlphaState, 0.15, { value = 0 })
-            :ease("quadout")
+        flux.to(pauseAlphaState, 0.2, { value = 0 }):ease("quadout")
+        flux.to(pauseMenuBox, 0.2, { _scaleX = 0.8, _scaleY = 0.8 }):ease("backin")
+        flux.to(overlayAlphaState, 0.2, { value = 0 }):ease("quadout")
     end)
 
     local achievementsButton = createPauseMenuButton("Achievements",
@@ -431,7 +430,7 @@ local function load(nurture, N)
         }
     })
 
-    local pauseMenuBox = nurture.Box:new(N, {
+    pauseMenuBox = nurture.Box:new(N, {
         backgroundColor = { 0.1, 0.1, 0.1, 0 },
         rounding = 15,
         forcedWidth = 300,
@@ -451,22 +450,8 @@ local function load(nurture, N)
 
     pauseMenuBox._scaleX = 0.8
     pauseMenuBox._scaleY = 0.8
-    pauseMenuBox._targetScale = 1.0
 
     pauseMenuBox:setUpdateCallback(function(self, dt)
-        -- Animate fade in/out and scale
-        if IS_PAUSED_OPEN and pauseAlphaState.value < 1.0 then
-            pauseAlphaState.value = math.min(1.0, pauseAlphaState.value + dt * 5)
-            self._targetScale = 1.0
-        elseif not IS_PAUSED_OPEN and pauseAlphaState.value > 0 then
-            pauseAlphaState.value = math.max(0, pauseAlphaState.value - dt * 5)
-            self._targetScale = 0.8
-        end
-
-        -- Smooth scale animation
-        self._scaleX = self._scaleX + (self._targetScale - self._scaleX) * dt * 10
-        self._scaleY = self._scaleY + (self._targetScale - self._scaleY) * dt * 10
-
         local currentAlpha = pauseAlphaState.value
         self.backgroundColor[4] = currentAlpha
         self.shadow.color[4] = currentAlpha * 0.5
@@ -503,7 +488,7 @@ local function load(nurture, N)
 
         if IS_PAUSED_OPEN then
             self:show()
-        else
+        elseif pauseAlphaState.value <= 0.01 then
             self:hide()
         end
     end)
@@ -636,16 +621,21 @@ local function load(nurture, N)
                     create3DButton("Pause", function(btn)
                         IS_PAUSED_OPEN = true
                         IS_OVERLAY_OPEN = true
+                        flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
+                        flux.to(pauseAlphaState, 0.3, { value = 1.0 }):ease("quadout")
+                        flux.to(pauseMenuBox, 0.3, { _scaleX = 1.0, _scaleY = 1.0 }):ease("backout")
                         print("play button clicked!")
                     end),
                     create3DButton("Shop", function(btn)
                         IS_SHOP_OPEN = true
                         IS_OVERLAY_OPEN = true
+                        flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
                         print("Shop button clicked!")
                     end),
                     create3DButton("Options", function(btn)
                         IS_OPTIONS_OPEN = true
                         IS_OVERLAY_OPEN = true
+                        flux.to(overlayAlphaState, 0.3, { value = 0.7 }):ease("quadout")
                         print("Options button clicked!")
                     end),
                     create3DButton("Quit", function(btn)
