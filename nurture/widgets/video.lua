@@ -21,9 +21,11 @@ function Video:new(N, videoPath, options)
             error("Video:new(): Video file not found: " .. videoPath)
         end
         self.video = love.graphics.newVideo(videoPath)
+        self._ownsVideo = true
     elseif type(videoPath) == "userdata" then
         -- Already a Love2D video object
         self.video = videoPath
+        self._ownsVideo = false
     else
         error("Video:new(): videoPath must be a string path or Love2D Video object")
     end
@@ -90,14 +92,20 @@ function Video:isPlaying()
 end
 
 function Video:setVideo(videoPath)
+    if self.video and self._ownsVideo then
+        self.video:release()
+    end
+    
     if type(videoPath) == "string" then
         local info = love.filesystem.getInfo(videoPath)
         if not info or info.type ~= "file" then
             error("Video:setVideo(): Video file not found: " .. videoPath)
         end
         self.video = love.graphics.newVideo(videoPath)
+        self._ownsVideo = true
     elseif type(videoPath) == "userdata" then
         self.video = videoPath
+        self._ownsVideo = false
     else
         error("Video:setVideo(): videoPath must be a string path or Love2D Video object")
     end

@@ -167,7 +167,7 @@ local function load(nurture, N)
                 tabbed:switch(tabName)
                 
                 for _, tn in ipairs(tabbed.tablist) do
-                    local button = N:get_all_by_classname("tab_" .. tn)[1]
+                    local button = N:getAllByClassname("tab_" .. tn)[1]
                     if tn == tabbed:getActiveTabName() then
                         button:setColors({
                             primaryColor = { 0.3, 0.5, 0.7, 1 },

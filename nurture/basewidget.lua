@@ -90,22 +90,19 @@ end
 
 function BaseWidget:add(child)
     if self._widgetCannotHaveChildren then
-        error("BaseWidget:add() Type " .. type .. ": Widget cannot have children")
+        error("BaseWidget:add() Type " .. self.type .. ": Widget cannot have children")
     end
-    table.insert(self.children, child)
-    child.parent = self
+    if not self.nurture then
+        error("BaseWidget:add(): Parent widget must have nurture reference")
+    end
+    self:_addChildRelationship(child)
 end
 
 function BaseWidget:remove(child)
     if self._widgetCannotHaveChildren then
-        error("BaseWidget:remove() Type " .. type .. ": Widget does have children")
+        error("BaseWidget:remove() Type " .. self.type .. ": Widget cannot have children")
     end
-    for i, v in ipairs(self.children) do
-        if v == child then
-            table.remove(self.children, i)
-            break
-        end
-    end
+    self:_removeChildRelationship(child)
 end
 
 function BaseWidget:show()
@@ -130,6 +127,9 @@ end
 
 function BaseWidget:setZIndex(zIndex)
     self.zIndex = zIndex
+    if self.nurture then
+        self.nurture:invalidateSort()
+    end
 end
 
 function BaseWidget:getZIndex()
@@ -290,7 +290,7 @@ function BaseWidget:updateSizeWithParents()
     end
 end
 
-function BaseWidget:get_all_by_classname(classname)
+function BaseWidget:getAllByClassname(classname)
     local result = {}
     local queue = {}
 

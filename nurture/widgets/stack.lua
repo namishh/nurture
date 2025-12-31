@@ -174,8 +174,8 @@ function Stack:_computeContainerSize()
 end
 
 function Stack:updateSize()
-    local woldWidth = self.width
-    local woldHeight = self.height
+    local oldWidth = self.width
+    local oldHeight = self.height
 
     local width, height = self:_computeContainerSize()
     self.width = width
@@ -259,8 +259,8 @@ function Stack:updateSize()
         end
     end
 
-    if self.sizeChangeCallback and (woldWidth ~= self.width or woldHeight ~= self.height) then
-        self.sizeChangeCallback(self, woldWidth, woldHeight, self.width, self.height)
+    if self.sizeChangeCallback and (oldWidth ~= self.width or oldHeight ~= self.height) then
+        self.sizeChangeCallback(self, oldWidth, oldHeight, self.width, self.height)
     end
 end
 
@@ -328,7 +328,7 @@ function Stack:sendOneFront(widget)
     table.insert(self.childrenUUIDs, idx - 1, widget.uuid)
 end
 
-function Stack:sendOneback(widget)
+function Stack:sendOneBack(widget)
     if not widget then return end
     local idx = _index_of(self.childrenUUIDs, widget.uuid)
     if not idx or idx == #self.childrenUUIDs then return end

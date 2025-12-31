@@ -84,7 +84,6 @@ function Grid:_addChildInOrder(child)
     end
     
     error("Grid:_addChildInOrder(): Grid is full, cannot add more children")
-    return false
 end
 
 function Grid:setCell(row, column, child)

@@ -479,14 +479,12 @@ function Button:draw()
         love.graphics.setShader(self.shader)
     end
 
-    if self.shadow then
-        if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
-            if self.shadow.color[4] > 0 then
-                love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
-                    self.shadow.color[4])
-                love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height,
-                    self.rx, self.ry, self.segments)
-            end
+    if self.shadow and self.shadow.x and self.shadow.y and self.shadow.color then
+        if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color[4] and self.shadow.color[4] > 0 then
+            love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
+                self.shadow.color[4])
+            love.graphics.rectangle("fill", self.x + self.shadow.x, self.y + self.shadow.y, self.width, self.height,
+                self.rx, self.ry, self.segments)
         end
     end
 

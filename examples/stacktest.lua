@@ -286,7 +286,7 @@ local function load(nurture, N)
             pressedColor = { 0.7, 0.1, 0.4, 1.0 }
         },
         onClick = function(btn)
-            stack4:sendOneback(button1)
+            stack4:sendOneBack(button1)
             print("Moved Button 1 one back")
         end,
         child = nurture.TextLabel:new(N, "Btn1 -1", "BodyFont", {

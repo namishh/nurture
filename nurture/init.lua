@@ -10,7 +10,10 @@ local nurture = {
     _shaders = {},
 
     _draggedWidget = nil,
-    _isDragging = false
+    _isDragging = false,
+    
+    _sortedWidgets = {},
+    _sortDirty = true
 }
 
 function nurture:new()
@@ -23,6 +26,8 @@ function nurture:new()
     self._shaders = {}
     self._draggedWidget = nil
     self._isDragging = false
+    self._sortedWidgets = {}
+    self._sortDirty = true
     return self
 end
 
@@ -78,11 +83,11 @@ function nurture:setFont(name)
 end
 
 function nurture:removeFont(name)
-    if nurture._fonts[name] then
-        nurture._fonts[name] = nil
+    if self._fonts[name] then
+        self._fonts[name] = nil
 
-        if nurture._default_font == name then
-            nurture._default_font = next(nurture._fonts)
+        if self._defaultFont == name then
+            self._defaultFont = next(self._fonts)
         end
 
         return true
@@ -120,6 +125,7 @@ function nurture:addWidget(widget)
 
     table.insert(self._widgets, widget)
     self._widgetsByUUID[widget.uuid] = widget
+    self._sortDirty = true
 
     if widget.classname then
         if not self._widgetsByClassName[widget.classname] then
@@ -136,6 +142,7 @@ function nurture:removeWidget(widget)
         if w == widget then
             table.remove(self._widgets, i)
             self._widgetsByUUID[widget.uuid] = nil
+            self._sortDirty = true
 
             if widget.classname and self._widgetsByClassName[widget.classname] then
                 for j, classWidget in ipairs(self._widgetsByClassName[widget.classname]) do
@@ -159,6 +166,8 @@ function nurture:clearWidgets()
     self._widgets = {}
     self._widgetsByUUID = {}
     self._widgetsByClassName = {}
+    self._sortedWidgets = {}
+    self._sortDirty = true
 end
 
 function nurture:getWidgets()
@@ -169,7 +178,7 @@ function nurture:getFromUUID(uuid)
     return self._widgetsByUUID[uuid]
 end
 
-function nurture:get_all_by_classname(classname)
+function nurture:getAllByClassname(classname)
     if self._widgetsByClassName[classname] then
         local result = {}
         for _, widget in ipairs(self._widgetsByClassName[classname]) do
@@ -197,20 +206,26 @@ function nurture:update(dt)
 end
 
 function nurture:draw()
-    local sortedWidgets = {}
-    for _, widget in ipairs(self._widgets) do
-        table.insert(sortedWidgets, widget)
+    if self._sortDirty then
+        self._sortedWidgets = {}
+        for _, widget in ipairs(self._widgets) do
+            table.insert(self._sortedWidgets, widget)
+        end
+        table.sort(self._sortedWidgets, function(a, b)
+            return (a.zIndex or 1) < (b.zIndex or 1)
+        end)
+        self._sortDirty = false
     end
 
-    table.sort(sortedWidgets, function(a, b)
-        return (a.zIndex or 1) < (b.zIndex or 1)
-    end)
-
-    for _, widget in ipairs(sortedWidgets) do
+    for _, widget in ipairs(self._sortedWidgets) do
         if widget.visible and widget.enabled and widget.draw then
             widget:draw()
         end
     end
+end
+
+function nurture:invalidateSort()
+    self._sortDirty = true
 end
 
 function nurture:mousepressed(x, y, button)

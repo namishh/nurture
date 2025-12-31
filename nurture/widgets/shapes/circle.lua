@@ -122,5 +122,12 @@ function Circle:updateSize()
     self.height = self.radius * 2
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
+function Circle:isPointInside(px, py)
+    local dx = px - self.x
+    local dy = py - self.y
+    return (dx * dx + dy * dy) <= (self.radius * self.radius)
+end
+
 return Circle
 

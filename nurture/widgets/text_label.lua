@@ -103,11 +103,6 @@ function TextLabel:draw()
         return
     end
 
-    local hasCallback = self.drawCallback ~= nil
-    if hasCallback then
-        self.drawCallback(self)
-    end
-
     local oldFont = love.graphics.getFont()
     local oldColor = { love.graphics.getColor() }
 
@@ -124,8 +119,8 @@ function TextLabel:draw()
     if self.wrapping then
         local wrapWidth = self:getWrapWidth()
         if wrapWidth then
-            if self.shadow then
-                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+            if self.shadow and self.shadow.x and self.shadow.y and self.shadow.color then
+                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) then
                     love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
                         self.shadow.color[4])
                     love.graphics.printf(self.text, self.x + self.shadow.x, self.y + self.shadow.y, wrapWidth,
@@ -136,8 +131,8 @@ function TextLabel:draw()
             love.graphics.setColor(self.color[1], self.color[2], self.color[3], self.color[4])
             love.graphics.printf(self.text, self.x, self.y, wrapWidth, self.wrapAlign)
         else
-            if self.shadow then
-                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+            if self.shadow and self.shadow.x and self.shadow.y and self.shadow.color then
+                if (self.shadow.x ~= 0 or self.shadow.y ~= 0) then
                     love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
                         self.shadow.color[4])
                     love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
@@ -148,8 +143,8 @@ function TextLabel:draw()
             love.graphics.print(self.text, self.x, self.y)
         end
     else
-        if self.shadow then
-            if (self.shadow.x ~= 0 or self.shadow.y ~= 0) and self.shadow.color then
+        if self.shadow and self.shadow.x and self.shadow.y and self.shadow.color then
+            if (self.shadow.x ~= 0 or self.shadow.y ~= 0) then
                 love.graphics.setColor(self.shadow.color[1], self.shadow.color[2], self.shadow.color[3],
                     self.shadow.color[4])
                 love.graphics.print(self.text, self.x + self.shadow.x, self.y + self.shadow.y)
@@ -165,8 +160,8 @@ function TextLabel:draw()
     love.graphics.setFont(oldFont)
     love.graphics.setColor(oldColor[1], oldColor[2], oldColor[3], oldColor[4])
 
-    if hasCallback then
-        love.graphics.pop()
+    if self.drawCallback then
+        self.drawCallback(self)
     end
 end
 

@@ -94,7 +94,7 @@ function Slider:setValue(value)
     end
 end
 
-function Slider:getValue(value)
+function Slider:getValue()
     return self.value
 end
 

@@ -49,6 +49,7 @@ end
 
 function VBox:setSpacing(spacing)
     self.spacing = spacing
+    self:updateSize()
 end
 
 function VBox:setJustify(justify)
@@ -57,11 +58,11 @@ function VBox:setJustify(justify)
         center = true,
         bottom = true,
         ['space-between'] = true,
-        ['space-around'] = true,
+        ['space-evenly'] = true,
     }
 
     if not validJustify[justify] then
-        error("VBox:setJustify(): Invalid justify value: " .. justify)
+        error("VBox:setJustify(): Invalid justify value: " .. justify .. ". Must be one of: top, bottom, center, space-evenly, space-between")
     end
 
     self.justify = justify

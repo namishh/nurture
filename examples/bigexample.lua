@@ -251,7 +251,7 @@ local function load(nurture, N)
                                 onClick = function(self)
                                     if IS_PROFILE_OPEN then
                                         PROFILE = profileInput.text
-                                        local label = N:get_all_by_classname("profile-label")[1]
+                                        local label = N:getAllByClassname("profile-label")[1]
                                         label:setText(PROFILE)
                                         IS_PROFILE_OPEN = false
                                         IS_OVERLAY_OPEN = false
@@ -487,12 +487,12 @@ local function load(nurture, N)
                                                                         if MONEY >= item.price then
                                                                             MONEY = MONEY - item.price
                                                                             
-                                                                            local moneyLabel = N:get_all_by_classname("shop_money")[1]
+                                                                            local moneyLabel = N:getAllByClassname("shop_money")[1]
                                                                             if moneyLabel then
                                                                                 moneyLabel:setText("$" .. tostring(MONEY))
                                                                             end
                                                                             
-                                                                            local shopItem = N:get_all_by_classname("shop_item" .. tostring(i))[1]
+                                                                            local shopItem = N:getAllByClassname("shop_item" .. tostring(i))[1]
                                                                             if shopItem then
                                                                                 shopItem:hide()
                                                                             end
@@ -555,7 +555,7 @@ local function load(nurture, N)
     shopBox._scaleY = 0.8
 
     -- Animate shop title letters
-    local shopTitleBox = N:get_all_by_classname("shop_title")[1]
+    local shopTitleBox = N:getAllByClassname("shop_title")[1]
     local shopLetters = {}
     if shopTitleBox then
         shopLetters = shopTitleBox:getChildren()
@@ -587,7 +587,7 @@ local function load(nurture, N)
     end
 
     for i = 1, #SHOP_ITEMS do
-        local shopItem = N:get_all_by_classname("shop_item" .. tostring(i))[1]
+        local shopItem = N:getAllByClassname("shop_item" .. tostring(i))[1]
         if shopItem then
             shopItem._scaleX = 1.0
             shopItem._scaleY = 1.0
@@ -835,7 +835,7 @@ local function load(nurture, N)
                         if not IS_OPTIONS_OPEN then
                             return
                         end
-                        local label = N:get_all_by_classname("master_volume_label")[1]
+                        local label = N:getAllByClassname("master_volume_label")[1]
                         if label then
                             label:setText("Master Volume: " .. math.floor(value))
                         end
@@ -861,7 +861,7 @@ local function load(nurture, N)
                         if not IS_OPTIONS_OPEN then
                             return
                         end
-                        local label = N:get_all_by_classname("sfx_volume_label")[1]
+                        local label = N:getAllByClassname("sfx_volume_label")[1]
                         if label then
                             label:setText("SFX: " .. math.floor(value))
                         end
@@ -905,7 +905,7 @@ local function load(nurture, N)
                         if not IS_OPTIONS_OPEN then
                             return
                         end
-                        local label = N:get_all_by_classname("fps_cap_label")[1]
+                        local label = N:getAllByClassname("fps_cap_label")[1]
                         if label then
                             label:setText("FPS Cap: " .. math.floor(value))
                         end
@@ -931,7 +931,7 @@ local function load(nurture, N)
                         if not IS_OPTIONS_OPEN then
                             return
                         end
-                        local label = N:get_all_by_classname("bright_label")[1]
+                        local label = N:getAllByClassname("bright_label")[1]
                         if label then
                             label:setText("Brightness: " .. math.floor(value))
                         end
@@ -972,7 +972,7 @@ local function load(nurture, N)
                 optionsTabbed:switch(tabKey)
 
                 for j, tk in ipairs(tabKeys) do
-                    local button = N:get_all_by_classname("options_tab_" .. tk)[1]
+                    local button = N:getAllByClassname("options_tab_" .. tk)[1]
                     if tk == optionsTabbed:getActiveTabName() then
                         button:setColors({
                             primaryColor = { 0.3, 0.5, 0.7, optionsBoxAlphaState.value },
@@ -1047,7 +1047,7 @@ local function load(nurture, N)
 
         -- Update tab buttons
         for _, tabKey in ipairs(tabKeys) do
-            local button = N:get_all_by_classname("options_tab_" .. tabKey)[1]
+            local button = N:getAllByClassname("options_tab_" .. tabKey)[1]
             if button then
                 button.colors.primaryColor[4] = currentAlpha
                 button.colors.hoveredColor[4] = currentAlpha
@@ -1373,20 +1373,23 @@ local function load(nurture, N)
         end)
 
         button:setUpdateCallback(function(self, dt)
+            if not self._isPressed and self._wasPressed then
+                self.y = self._baseY
+                self:setShadowOffset(0, 6)
+                self:updateSize()
+                self._wasPressed = false
+            end
+            
             if SHOULD_DISABLE_BUTTONS then
                 return
             end
+            
             if self._isPressed and not self._wasPressed then
                 self._baseY = self.y
                 self.y = self.y + 5
                 self:setShadowOffset(1, 1)
                 self:updateSize()
                 self._wasPressed = true
-            elseif not self._isPressed and self._wasPressed then
-                self.y = self._baseY
-                self:setShadowOffset(0, 6)
-                self:updateSize()
-                self._wasPressed = false
             end
         end)
 

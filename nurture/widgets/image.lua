@@ -21,9 +21,11 @@ function Image:new(N, imagePath, options)
             error("Image:new(): Image file not found: " .. imagePath)
         end
         self.image = love.graphics.newImage(imagePath)
+        self._ownsImage = true
     elseif type(imagePath) == "userdata" then
         -- Already a Love2D image object
         self.image = imagePath
+        self._ownsImage = false
     else
         error("Image:new(): imagePath must be a string path or Love2D Image object")
     end
@@ -58,14 +60,20 @@ function Image:new(N, imagePath, options)
 end
 
 function Image:setImage(imagePath)
+    if self.image and self._ownsImage then
+        self.image:release()
+    end
+    
     if type(imagePath) == "string" then
         local info = love.filesystem.getInfo(imagePath)
         if not info or info.type ~= "file" then
             error("Image:setImage(): Image file not found: " .. imagePath)
         end
         self.image = love.graphics.newImage(imagePath)
+        self._ownsImage = true
     elseif type(imagePath) == "userdata" then
         self.image = imagePath
+        self._ownsImage = false
     else
         error("Image:setImage(): imagePath must be a string path or Love2D Image object")
     end
