@@ -3,7 +3,7 @@ local moonshine = require("assets.moonshine")
 
 N = nurture:new()
 
-local CURRENT_EXAMPLE = "stacktest"
+local CURRENT_EXAMPLE = "bigexample"
 local currentExampleModule = nil
 
 
